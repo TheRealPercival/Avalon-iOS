@@ -9,13 +9,10 @@ import SwiftUI
 
 struct SetupView: View {
     @State private var serverURLString: String = ""
-    @State private var isConnecting: Bool = false
-    
-    @State private var loadingAngle: Double = 0
     
     var body: some View {
         VStack(spacing: 0) {
-            HStack {
+            HStack(spacing: 12) {
                 Image(.merlinCutout)
                     .resizable()
                     .frame(maxWidth: 81, maxHeight: 60)
@@ -42,17 +39,15 @@ struct SetupView: View {
                     
                     Text("Welcome to an online adaptation of Don Eskridge's Avalon: Big Box Edition. Please enter your group's server URL below to begin.")
                         .foregroundStyle(.gray0)
-                        .multilineTextAlignment(.center)
                         .font(.livvic(size: .note))
                 }
+                .multilineTextAlignment(.center)
                 
                 TextField(
                     "Server URL",
                     text: $serverURLString,
                     prompt: Text("Server URL").foregroundStyle(.gray3)
                 )
-                .disabled(isConnecting)
-                .opacity(isConnecting ? 0.35 : 1)
                 .keyboardType(.URL)
                 .autocorrectionDisabled()
                 .textInputAutocapitalization(.never)
@@ -68,46 +63,20 @@ struct SetupView: View {
             
             Spacer()
             
-            let isDisabled = serverURLString.isEmpty || isConnecting
             Button {
-                Task {
-                    isConnecting = true
-                    try? await Task.sleep(for: .seconds(5))
-                    isConnecting = false
-                }
+                // Connect to WebSocket server to verify
             } label: {
-                HStack {
-                    if isConnecting {
-                        Image(systemName: "progress.indicator")
-                            .rotationEffect(.degrees(loadingAngle))
-                            .onAppear {
-                                withAnimation(
-                                    .linear
-                                        .speed(0.2)
-                                        .repeatForever(autoreverses: false)
-                                ) {
-                                    loadingAngle = 360
-                                }
-                            }
-                            .onDisappear {
-                                loadingAngle = 0
-                            }
-                    }
-                    
-                    Text(isConnecting ? "Connecting" : "Connect")
-                }
-                .foregroundStyle(.white1)
-                .font(.livvic(weight: .medium))
-                .padding(12)
-                .frame(maxWidth: .infinity)
-                .background(.blue1)
-                .clipShape(RoundedRectangle(cornerRadius: 10))
+                Text("Connect")
+                    .foregroundStyle(.white1)
+                    .font(.livvic(weight: .medium))
+                    .padding(12)
+                    .frame(maxWidth: .infinity)
+                    .background(.blue1)
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
             }
-            .disabled(isDisabled)
-            .opacity(isDisabled ? 0.35 : 1)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .padding()
+        .padding(.horizontal, 16)
         .background {
             Color.gray4
                 .ignoresSafeArea()
