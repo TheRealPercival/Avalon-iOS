@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>UIAppFonts</key>
+	<array>
+		<string>Livvic-Thin.ttf</string>
+		<string>Livvic-ThinItalic.ttf</string>
+		<string>Livvic-ExtraLight.ttf</string>
+		<string>Livvic-ExtraLightItalic.ttf</string>
+		<string>Livvic-Light.ttf</string>
+		<string>Livvic-LightItalic.ttf</string>
+		<string>Livvic-Regular.ttf</string>
+		<string>Livvic-Italic.ttf</string>
+		<string>Livvic-Medium.ttf</string>
+		<string>Livvic-MediumItalic.ttf</string>
+		<string>Livvic-SemiBold.ttf</string>
+		<string>Livvic-SemiBoldItalic.ttf</string>
+		<string>Livvic-Bold.ttf</string>
+		<string>Livvic-BoldItalic.ttf</string>
+		<string>Livvic-Black.ttf</string>
+		<string>Livvic-BlackItalic.ttf</string>
+	</array>
+</dict>
+</plist>

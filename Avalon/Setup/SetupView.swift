@@ -23,12 +23,11 @@ struct SetupView: View {
                 VStack(alignment: .leading, spacing: -10) {
                     Text("Avalon")
                         .foregroundStyle(.white1)
-                        .font(.system(size: 50))
-                        .fontWeight(.semibold)
+                        .font(.livvic(size: 50, weight: .medium))
                     
                     Text("The Real Percival")
                         .foregroundStyle(.gray0)
-                        .italic()
+                        .font(.livvic(size: 16, weight: .regular, italic: true))
                 }
                 .padding(.top, -6)
             }
@@ -39,13 +38,12 @@ struct SetupView: View {
                 VStack(spacing: 12) {
                     Text("You've arrived in Avalon!")
                         .foregroundStyle(.white1)
-                        .font(.system(size: 26))
-                        .fontWeight(.medium)
+                        .font(.livvic(size: .subheading))
                     
                     Text("Welcome to an online adaptation of Don Eskridge's Avalon: Big Box Edition. Please enter your group's server URL below to begin.")
                         .foregroundStyle(.gray0)
                         .multilineTextAlignment(.center)
-                        .font(.system(size: 14))
+                        .font(.livvic(size: .note))
                 }
                 
                 TextField(
@@ -59,7 +57,7 @@ struct SetupView: View {
                 .autocorrectionDisabled()
                 .textInputAutocapitalization(.never)
                 .foregroundStyle(.white1)
-                .font(.system(size: 18))
+                .font(.livvic)
                 .padding(12)
                 .overlay {
                     RoundedRectangle(cornerRadius: 10)
@@ -99,8 +97,7 @@ struct SetupView: View {
                     Text(isConnecting ? "Connecting" : "Connect")
                 }
                 .foregroundStyle(.white1)
-                .font(.system(size: 18))
-                .fontWeight(.medium)
+                .font(.livvic(weight: .medium))
                 .padding(12)
                 .frame(maxWidth: .infinity)
                 .background(.blue1)

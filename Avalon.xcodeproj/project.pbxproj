@@ -29,9 +29,22 @@
 		5C95ED6E301464B400581CAF /* AvalonUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AvalonUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		5CB806BF3019109F004821B6 /* Exceptions for "Avalon" folder in "Avalon" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 5C95ED54301464B300581CAF /* Avalon */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		5C95ED57301464B300581CAF /* Avalon */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				5CB806BF3019109F004821B6 /* Exceptions for "Avalon" folder in "Avalon" target */,
+			);
 			path = Avalon;
 			sourceTree = "<group>";
 		};
@@ -400,6 +413,7 @@
 				DEVELOPMENT_TEAM = NBG8656X4T;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Avalon/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Avalon;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.games";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -435,6 +449,7 @@
 				DEVELOPMENT_TEAM = NBG8656X4T;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Avalon/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Avalon;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.games";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
