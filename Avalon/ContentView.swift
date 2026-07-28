@@ -9,6 +9,10 @@ import SwiftUI
 import SwiftData
 
 struct ContentView: View {
+    init() {
+        UIScrollView.appearance().delaysContentTouches = false
+    }
+    
     var body: some View {
         SetupView()
     }
