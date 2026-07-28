@@ -1,5 +1,5 @@
 //
-//  LandingView.swift
+//  SetupView.swift
 //  Avalon
 //
 //  Created by Ben Key on 7/24/26.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct LandingView: View {
+struct SetupView: View {
     @State private var serverURLString: String = ""
     @State private var isConnecting: Bool = false
     
@@ -119,5 +119,5 @@ struct LandingView: View {
 }
 
 #Preview {
-    LandingView()
+    SetupView()
 }
