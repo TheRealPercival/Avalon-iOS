@@ -24,11 +24,11 @@ struct SetupView: View {
                         
                         VStack(alignment: .leading, spacing: -10) {
                             Text("Avalon")
-                                .foregroundStyle(.white1)
+                                .foregroundStyle(.primaryText)
                                 .font(.livvic(size: 50, weight: .medium))
                             
                             Text("The Real Percival")
-                                .foregroundStyle(.gray0)
+                                .foregroundStyle(.secondaryText)
                                 .font(.livvic(size: 16, weight: .regular, italic: true))
                         }
                         .padding(.top, -6)
@@ -51,7 +51,7 @@ struct SetupView: View {
             }
             .scrollBounceBehavior(.basedOnSize)
             .background {
-                Color.gray4
+                Color.fullBackground
                     .ignoresSafeArea()
             }
         }
@@ -64,11 +64,11 @@ struct SetupView: View {
             VStack(spacing: 48) {
                 VStack(spacing: 12) {
                     Text("You've arrived in Avalon!")
-                        .foregroundStyle(.white1)
+                        .foregroundStyle(.primaryText)
                         .font(.livvic(size: .subheading))
                     
                     Text("Welcome to an online adaptation of Don Eskridge's Avalon: Big Box Edition. Please enter your group's server URL below to begin.")
-                        .foregroundStyle(.gray0)
+                        .foregroundStyle(.secondaryText)
                         .font(.livvic(size: .note))
                 }
                 .multilineTextAlignment(.center)
@@ -76,17 +76,17 @@ struct SetupView: View {
                 TextField(
                     "Server URL",
                     text: $serverURLString,
-                    prompt: Text("Server URL").foregroundStyle(.gray3)
+                    prompt: Text("Server URL").foregroundStyle(.subtleText)
                 )
                 .keyboardType(.URL)
                 .autocorrectionDisabled()
                 .textInputAutocapitalization(.never)
-                .foregroundStyle(.white1)
+                .foregroundStyle(.primaryText)
                 .font(.livvic)
                 .padding(12)
                 .overlay {
                     RoundedRectangle(cornerRadius: 10)
-                        .strokeBorder(.gray2)
+                        .strokeBorder(.tertiaryText)
                 }
             }
             
@@ -116,11 +116,11 @@ struct SetupView: View {
             VStack(spacing: 48) {
                 VStack(spacing: 12) {
                     Text("Identify yourself!")
-                        .foregroundStyle(.white1)
+                        .foregroundStyle(.primaryText)
                         .font(.livvic(size: .subheading))
                     
                     Text("Sign into your Discord account below so your game history can be saved.")
-                        .foregroundStyle(.gray0)
+                        .foregroundStyle(.secondaryText)
                         .font(.livvic(size: .note))
                 }
                 
@@ -146,7 +146,7 @@ struct SetupView: View {
                     
                     Text("Connected to \(serverURLString)")
                         .font(.livvic(size: .note))
-                        .foregroundStyle(.gray2)
+                        .foregroundStyle(.tertiaryText)
                 }
             }
             .multilineTextAlignment(.center)
