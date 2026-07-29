@@ -9,7 +9,16 @@ import SwiftUI
 
 struct RootView: View {
     var body: some View {
-        SettingsView()
+        TabView {
+            Tab("Settings", systemImage: "gear") {
+                SettingsView()
+            }
+            
+            Tab("Game", systemImage: "gamecontroller") {
+                Text("Game View")
+            }
+        }
+        .tint(.blue1)
     }
 }
 
