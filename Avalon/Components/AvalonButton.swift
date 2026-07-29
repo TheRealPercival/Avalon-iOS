@@ -51,6 +51,10 @@ struct AvalonButton<Content: View>: View {
     AvalonButton("Start") {}
     AvalonButton("Delete", isDestructive: true) {}
     AvalonButton("Join Game (5 in lobby)") {} trailingView: {
-        Image(systemName: "plus")
+        StackedProfilePictures {
+            Color.red1
+            Color.green1
+            Color.blue2
+        }
     }
 }
