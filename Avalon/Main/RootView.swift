@@ -15,7 +15,7 @@ struct RootView: View {
             }
             
             Tab("Game", systemImage: "gamecontroller") {
-                Text("Game View")
+                JoinView()
             }
         }
         .tint(.blue1)
