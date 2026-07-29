@@ -8,13 +8,15 @@
 import SwiftUI
 
 struct RootView: View {
+    @State private var currentTab: Int = 1
+    
     var body: some View {
-        TabView {
-            Tab("Settings", systemImage: "gear") {
+        TabView(selection: $currentTab) {
+            Tab("Settings", systemImage: "gear", value: 0) {
                 SettingsView()
             }
             
-            Tab("Game", systemImage: "gamecontroller") {
+            Tab("Game", systemImage: "gamecontroller", value: 1) {
                 JoinView()
             }
         }
