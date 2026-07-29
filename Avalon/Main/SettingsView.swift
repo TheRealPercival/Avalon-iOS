@@ -8,6 +8,13 @@
 import SwiftUI
 
 struct SettingsView: View {
+    @State private var showChangeServerAlert: Bool = false
+    @State private var showSignOutAlert: Bool = false
+    
+    @State private var showAcceptUserAlert: Bool = false
+    @State private var acceptedUserNickname: String = ""
+    @State private var acceptedUserUsername: String = ""
+    
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
@@ -38,6 +45,16 @@ struct SettingsView: View {
                     
                     AvalonButton("Change Server", isDestructive: true) {
                         // Go back to setup screen
+                        showChangeServerAlert = true
+                    }
+                    .alert(
+                        "Are you sure?",
+                        isPresented: $showChangeServerAlert
+                    ) {
+                        Button("Cancel", role: .cancel) {}
+                        Button("Yes", role: .destructive) {}
+                    } message: {
+                        Text("Changing your current server will also sign you out.")
                     }
                 }
                 
@@ -62,6 +79,16 @@ struct SettingsView: View {
                     
                     AvalonButton("Sign Out", isDestructive: true) {
                         // Go back to setup screen
+                        showSignOutAlert = true
+                    }
+                    .alert(
+                        "Are you sure?",
+                        isPresented: $showSignOutAlert
+                    ) {
+                        Button("Cancel", role: .cancel) {}
+                        Button("Yes", role: .destructive) {}
+                    } message: {
+                        Text("Do you really want to sign out?")
                     }
                 }
             }
@@ -82,7 +109,21 @@ struct SettingsView: View {
             makeUserRow(color: .green1, primaryText: "@65472624657", canAccept: true)
             makeUserRow(color: .blue1, primaryText: "@_shoe_", canAccept: true)
         }
-        
+        .alert("Nickname", isPresented: $showAcceptUserAlert) {
+            TextField("Nickname", text: $acceptedUserNickname)
+            
+            Button("Cancel", role: .cancel) {
+                acceptedUserNickname = ""
+            }
+            
+            Button("Accept") {
+                acceptedUserNickname = ""
+            }
+            .keyboardShortcut(.defaultAction)
+        } message: {
+            Text("Assign \(acceptedUserUsername) a nickname.")
+        }
+
         makeSection(title: "Accepted") {
             makeUserRow(color: .red1, primaryText: "Ben", secondaryText: "@ben.json")
             makeUserRow(color: .green1, primaryText: "Drew", secondaryText: "@65472624657")
@@ -128,6 +169,8 @@ struct SettingsView: View {
                 if canAccept {
                     Button {
                         // Allow user in
+                        acceptedUserUsername = primaryText
+                        showAcceptUserAlert = true
                     } label: {
                         Image(systemName: "checkmark.circle.fill")
                             .foregroundStyle(.green2)
