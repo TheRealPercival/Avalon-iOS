@@ -11,7 +11,7 @@ struct RootView: View {
     var body: some View {
         TabView {
             Tab("Settings", systemImage: "gear") {
-                SettingsView()
+                SettingsView(isAdmin: true)
             }
             
             Tab("Game", systemImage: "gamecontroller") {
