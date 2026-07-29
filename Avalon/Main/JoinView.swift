@@ -8,9 +8,11 @@
 import SwiftUI
 
 struct JoinView: View {
-    private var joinMessage: String = "Join Game (5 in lobby)"
-    private var spectateGameMessage: String = "Spectate (5 in game)"
-    private var spectateLobbyMessage: String = "Spectate (lobby full)"
+    private let joinType: JoinType
+    
+    init(joinType: JoinType = .joinGame) {
+        self.joinType = joinType
+    }
     
     var body: some View {
         GeometryReader { geometry in
@@ -20,7 +22,7 @@ struct JoinView: View {
                     
                     Spacer()
                     
-                    AvalonButton(joinMessage) {
+                    AvalonButton(joinType.message) {
                         // Go to game screen
                     } trailingView: {
                         StackedProfilePictures {
@@ -43,7 +45,31 @@ struct JoinView: View {
         }
     }
 }
+    
+extension JoinView {
+    enum JoinType {
+        case joinGame
+        case spectateGame
+        case spectateLobby
+        
+        var message: String {
+            switch self {
+            case .joinGame: "Join Game (5 in lobby)"
+            case .spectateGame: "Spectate (5 in game)"
+            case .spectateLobby: "Spectate (lobby full)"
+            }
+        }
+    }
+}
 
-#Preview {
-    JoinView()
+#Preview("Join Game") {
+    JoinView(joinType: .joinGame)
+}
+
+#Preview("Spectate Game") {
+    JoinView(joinType: .spectateGame)
+}
+
+#Preview("Spectate Lobby") {
+    JoinView(joinType: .spectateLobby)
 }
