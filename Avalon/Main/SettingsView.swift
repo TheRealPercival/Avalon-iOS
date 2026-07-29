@@ -15,6 +15,8 @@ struct SettingsView: View {
     @State private var acceptedUserNickname: String = ""
     @State private var acceptedUserUsername: String = ""
     
+    @ScaledMetric private var imageWidth = 32
+    
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
@@ -150,8 +152,8 @@ struct SettingsView: View {
     ) -> some View {
         HStack(spacing: 8) {
             color
-                .frame(width: 32, height: 32)
                 .clipShape(.circle)
+                .frame(width: imageWidth, height: imageWidth)
             
             Text(primaryText)
                 .foregroundStyle(.primaryText)
