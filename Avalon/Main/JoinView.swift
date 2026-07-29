@@ -12,7 +12,13 @@ struct JoinView: View {
         GeometryReader { geometry in
             ScrollView {
                 VStack(spacing: 0) {
+                    AvalonHeader()
+                    
+                    Spacer()
+                    
                     Text("Join View")
+                    
+                    Spacer()
                 }
                 .padding(16)
                 .frame(maxWidth: .infinity, minHeight: geometry.size.height)
