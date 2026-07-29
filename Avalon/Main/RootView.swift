@@ -13,7 +13,7 @@ struct RootView: View {
     var body: some View {
         TabView(selection: $currentTab) {
             Tab("Settings", systemImage: "gear", value: 0) {
-                SettingsView()
+                SettingsView(isAdmin: true)
             }
             
             Tab("Game", systemImage: "gamecontroller", value: 1) {

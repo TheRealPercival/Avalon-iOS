@@ -17,6 +17,12 @@ struct SettingsView: View {
     
     @ScaledMetric private var imageWidth = 32
     
+    private var isAdmin: Bool
+    
+    init(isAdmin: Bool = false) {
+        self.isAdmin = isAdmin
+    }
+    
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
@@ -24,7 +30,9 @@ struct SettingsView: View {
                     .foregroundStyle(.primaryText)
                     .font(.livvic(size: .subheading))
                 
-                adminSettingsView
+                if isAdmin {
+                    adminSettingsView
+                }
                 
                 makeSection(title: "Server") {
                     HStack {
@@ -198,6 +206,10 @@ struct SettingsView: View {
     }
 }
 
-#Preview {
+#Preview("Default Settings") {
     SettingsView()
+}
+
+#Preview("Admin Settings") {
+    SettingsView(isAdmin: true)
 }
