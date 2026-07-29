@@ -98,19 +98,11 @@ struct SetupView: View {
             
             Spacer()
             
-            Button {
+            AvalonButton("Connect") {
                 // Connect to WebSocket server to verify
                 withAnimation {
                     isServerURLValid = true
                 }
-            } label: {
-                Text("Connect")
-                    .foregroundStyle(.white1)
-                    .font(.livvic(weight: .medium))
-                    .padding(12)
-                    .frame(maxWidth: .infinity)
-                    .background(.blue1)
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
             }
         }
     }
