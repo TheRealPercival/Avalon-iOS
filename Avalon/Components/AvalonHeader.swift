@@ -8,11 +8,19 @@
 import SwiftUI
 
 struct AvalonHeader: View {
+    @ScaledMetric private var imageWidth = 80
+    
+    private var topOffset: CGFloat {
+        -imageWidth * 7 / 40
+    }
+    
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: 8) {
             Image(.merlinCutout)
                 .resizable()
-                .frame(maxWidth: 81, maxHeight: 60)
+                .scaledToFit()
+                .frame(maxWidth: imageWidth, maxHeight: imageWidth)
+                .padding(.top, topOffset)
             
             VStack(alignment: .leading, spacing: -10) {
                 Text("Avalon")
@@ -23,7 +31,6 @@ struct AvalonHeader: View {
                     .foregroundStyle(.secondaryText)
                     .font(.livvic(size: 16, weight: .regular, italic: true))
             }
-            .padding(.top, -6)
         }
     }
 }
