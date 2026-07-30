@@ -13,6 +13,12 @@ struct SetupView: View {
     @State private var serverURLString: String = ""
     @State private var isServerURLValid: Bool = false
     
+    @Binding private var isSetupComplete: Bool
+    
+    init(isSetupComplete: Binding<Bool>) {
+        self._isSetupComplete = isSetupComplete
+    }
+    
     var body: some View {
         GeometryReader { geometry in
             ScrollView {
@@ -92,19 +98,11 @@ struct SetupView: View {
             
             Spacer()
             
-            Button {
+            AvalonButton("Connect") {
                 // Connect to WebSocket server to verify
                 withAnimation {
                     isServerURLValid = true
                 }
-            } label: {
-                Text("Connect")
-                    .foregroundStyle(.white1)
-                    .font(.livvic(weight: .medium))
-                    .padding(12)
-                    .frame(maxWidth: .infinity)
-                    .background(.blue1)
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
             }
         }
     }
@@ -127,6 +125,7 @@ struct SetupView: View {
                 VStack(spacing: 8) {
                     Button {
                         // Open Discord authentication flow
+                        isSetupComplete = true
                     } label: {
                         HStack(spacing: 8) {
                             Image(.discordLogo)
@@ -157,5 +156,5 @@ struct SetupView: View {
 }
 
 #Preview {
-    SetupView()
+    SetupView(isSetupComplete: .constant(false))
 }
