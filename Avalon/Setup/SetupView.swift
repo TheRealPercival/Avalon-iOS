@@ -23,22 +23,7 @@ struct SetupView: View {
         GeometryReader { geometry in
             ScrollView {
                 VStack(spacing: 0) {
-                    HStack(spacing: 12) {
-                        Image(.merlinCutout)
-                            .resizable()
-                            .frame(maxWidth: 81, maxHeight: 60)
-                        
-                        VStack(alignment: .leading, spacing: -10) {
-                            Text("Avalon")
-                                .foregroundStyle(.primaryText)
-                                .font(.livvic(size: 50, weight: .medium))
-                            
-                            Text("The Real Percival")
-                                .foregroundStyle(.secondaryText)
-                                .font(.livvic(size: 16, weight: .regular, italic: true))
-                        }
-                        .padding(.top, -6)
-                    }
+                    AvalonHeader()
                     
                     if isServerURLValid {
                         signInView
