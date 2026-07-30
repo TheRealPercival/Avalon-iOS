@@ -11,9 +11,13 @@ struct SettingsView: View {
     @State private var showChangeServerAlert: Bool = false
     @State private var showSignOutAlert: Bool = false
     
+    @State private var selectedUsername: String = ""
+    
     @State private var showAcceptUserAlert: Bool = false
     @State private var acceptedUserNickname: String = ""
-    @State private var acceptedUserUsername: String = ""
+    
+    @State private var showRejectUserAlert: Bool = false
+    @State private var showRemoveUserAlert: Bool = false
     
     @ScaledMetric private var imageWidth = 32
     
@@ -131,8 +135,21 @@ struct SettingsView: View {
             }
             .keyboardShortcut(.defaultAction)
         } message: {
-            Text("Assign \(acceptedUserUsername) a nickname.")
+            Text("Assign \(selectedUsername) a nickname:")
         }
+        .alert("Are you sure?", isPresented: $showRejectUserAlert) {
+            Button("Cancel", role: .cancel) {}
+            Button("Reject", role: .destructive) {}
+        } message: {
+            Text("Do you want to reject \(selectedUsername) from joining the server?")
+        }
+        .alert("Are you sure?", isPresented: $showRemoveUserAlert) {
+            Button("Cancel", role: .cancel) {}
+            Button("Remove", role: .destructive) {}
+        } message: {
+            Text("Do you want to remove \(selectedUsername) from the server?")
+        }
+
 
         makeSection(title: "Accepted") {
             makeUserRow(color: .red1, primaryText: "Ben", secondaryText: "@ben.json")
@@ -179,7 +196,7 @@ struct SettingsView: View {
                 if canAccept {
                     Button {
                         // Allow user in
-                        acceptedUserUsername = primaryText
+                        selectedUsername = primaryText
                         showAcceptUserAlert = true
                     } label: {
                         Image(systemName: "checkmark.circle.fill")
@@ -190,6 +207,13 @@ struct SettingsView: View {
                 
                 Button {
                     // Remove user
+                    if let secondaryText {
+                        selectedUsername = "\(primaryText) (\(secondaryText))"
+                        showRemoveUserAlert = true
+                    } else {
+                        selectedUsername = primaryText
+                        showRejectUserAlert = true
+                    }
                 } label: {
                     Image(systemName: "xmark.circle.fill")
                         .foregroundStyle(.red1)
