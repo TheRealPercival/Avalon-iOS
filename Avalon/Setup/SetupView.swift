@@ -6,17 +6,22 @@
 //
 
 import SwiftUI
+import SocketIO
 
 struct SetupView: View {
     @ScaledMetric private var logoHeight = 18
     
-    @State private var serverURLString: String = ""
-    @State private var isServerURLValid: Bool = false
+    @State private var serverURLString: String = "http://172.20.10.7:8000" // Do not commit
+    
+    @State private var socketManager: SocketManager?
+    @State private var status: SocketIOStatus
+    @State private var serverInfo: ServerInfo?
     
     @Binding private var isSetupComplete: Bool
     
     init(isSetupComplete: Binding<Bool>) {
         self._isSetupComplete = isSetupComplete
+        self.status = .notConnected
     }
     
     var body: some View {
@@ -25,7 +30,7 @@ struct SetupView: View {
                 VStack(spacing: 0) {
                     AvalonHeader()
                     
-                    if isServerURLValid {
+                    if serverInfo != nil {
                         signInView
                             .transition(
                                 .offset(x: geometry.size.width)
@@ -83,10 +88,58 @@ struct SetupView: View {
             
             Spacer()
             
-            AvalonButton("Connect") {
+            AvalonButton(buttonText) {
                 // Connect to WebSocket server to verify
-                withAnimation {
-                    isServerURLValid = true
+                guard let serverURL = URL(string: serverURLString) else {
+                    // Throw error message to user
+                    print("Error: Invalid URL")
+                    return
+                }
+                
+                let socketManager = SocketManager(
+                    socketURL: serverURL,
+                    config: [.log(true), .compress]
+                )
+                
+                self.socketManager = socketManager
+                
+                let socket = socketManager.defaultSocket
+                status = socket.status
+                    
+                socket.on(clientEvent: .connect) { _, _ in
+                    print(".connect")
+                }
+                
+                socket.on(clientEvent: .disconnect) { _, _ in
+                    print(".disconnect")
+                }
+                
+                socket.on(clientEvent: .error) { _, _ in
+                    print(".error")
+                }
+                
+                socket.on(clientEvent: .statusChange) { _, _ in
+                    print(".statusChange")
+                    status = socket.status
+                }
+                
+                socket.on("info") { data, _ in
+                    guard let serverInfoDict = data.first,
+                          let serverInfoData = try? JSONSerialization.data(withJSONObject: serverInfoDict),
+                          let serverInfo = try? JSONDecoder().decode(ServerInfo.self, from: serverInfoData)
+                    else {
+                        // Throw error message to user
+                        print("Error: Could not parse server info")
+                        return
+                    }
+                    
+                    withAnimation {
+                        self.serverInfo = serverInfo
+                    }
+                }
+                
+                socket.connect(timeoutAfter: 10) {
+                    print("timed out")
                 }
             }
         }
@@ -138,6 +191,20 @@ struct SetupView: View {
             Spacer()
         }
     }
+    
+    private var buttonText: String {
+        switch status {
+        case .notConnected, .disconnected: "Connect"
+        case .connecting: "Connecting..."
+        case .connected: "Connected!"
+        }
+    }
+}
+
+struct ServerInfo: Decodable {
+    let version: String
+    let supabaseURL: URL
+    let supabaseAnonKey: String
 }
 
 #Preview {
