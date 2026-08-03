@@ -7,15 +7,17 @@
 
 import SwiftUI
 import SocketIO
+import Supabase
 
 struct SetupView: View {
     @ScaledMetric private var logoHeight = 18
     
-    @State private var serverURLString: String = "http://172.20.10.7:8000" // Do not commit
+    @State private var serverURLString: String = ""
     
     @State private var socketManager: SocketManager?
     @State private var status: SocketIOStatus
     @State private var serverInfo: ServerInfo?
+    @State private var supabaseClient: SupabaseClient?
     
     @Binding private var isSetupComplete: Bool
     
@@ -30,8 +32,8 @@ struct SetupView: View {
                 VStack(spacing: 0) {
                     AvalonHeader()
                     
-                    if serverInfo != nil {
-                        signInView
+                    if let serverInfo {
+                        signInView(with: serverInfo)
                             .transition(
                                 .offset(x: geometry.size.width)
                             )
@@ -53,7 +55,7 @@ struct SetupView: View {
         }
     }
     
-    var serverURLView: some View {
+    private var serverURLView: some View {
         VStack(spacing: 0) {
             Spacer()
             
@@ -145,7 +147,7 @@ struct SetupView: View {
         }
     }
     
-    var signInView: some View {
+    private func signInView(with serverInfo: ServerInfo) -> some View {
         VStack(spacing: 0) {
             Spacer()
             
@@ -163,7 +165,33 @@ struct SetupView: View {
                 VStack(spacing: 8) {
                     Button {
                         // Open Discord authentication flow
-                        isSetupComplete = true
+                        let supabaseClient = SupabaseClient(
+                            supabaseURL: serverInfo.supabaseURL,
+                            supabaseKey: serverInfo.supabaseAnonKey
+                        )
+                        self.supabaseClient = supabaseClient
+                        
+                        Task {
+                            let session = try? await supabaseClient.auth.signInWithOAuth(
+                                provider: .discord,
+                                redirectTo: URL(string: "avalontrp://setup")
+                            )
+                            
+                            guard let session else {
+                                print("Error: Auth session failed")
+                                return
+                            }
+                            
+                            guard let socketManager else {
+                                return
+                            }
+                            
+                            socketManager.defaultSocket.disconnect()
+                            socketManager.defaultSocket.connect(withPayload: [
+                                "access_token": session.accessToken,
+                                "refresh_token": session.refreshToken
+                            ])
+                        }
                     } label: {
                         HStack(spacing: 8) {
                             Image(.discordLogo)
