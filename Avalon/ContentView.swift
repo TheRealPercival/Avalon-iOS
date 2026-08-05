@@ -7,19 +7,31 @@
 
 import SwiftUI
 import SwiftData
+import SocketIO
+import Supabase
 
 struct ContentView: View {
-    @State private var isSetupComplete: Bool = false
+    @State private var socketManager: SocketManager?
+    @State private var serverInfo: ServerInfo?
+    @State private var supabaseClient: SupabaseClient?
     
     init() {
         UIScrollView.appearance().delaysContentTouches = false
     }
     
     var body: some View {
-        if isSetupComplete {
-            RootView()
+        if let socketManager, let serverInfo, let supabaseClient {
+            RootView(
+                socketManager: $socketManager,
+                serverInfo: $serverInfo,
+                supabaseClient: $supabaseClient
+            )
         } else {
-            SetupView(isSetupComplete: $isSetupComplete)
+            SetupView(
+                socketManager: $socketManager,
+                serverInfo: $serverInfo,
+                supabaseClient: $supabaseClient
+            )
         }
     }
 }

@@ -13,17 +13,20 @@ struct SetupView: View {
     @ScaledMetric private var logoHeight = 18
     
     @State private var serverURLString: String = ""
+    @State private var status: SocketIOStatus = .notConnected
     
-    @State private var socketManager: SocketManager?
-    @State private var status: SocketIOStatus
-    @State private var serverInfo: ServerInfo?
-    @State private var supabaseClient: SupabaseClient?
-    
-    @Binding private var isSetupComplete: Bool
-    
-    init(isSetupComplete: Binding<Bool>) {
-        self._isSetupComplete = isSetupComplete
-        self.status = .notConnected
+    @Binding private var socketManager: SocketManager?
+    @Binding private var serverInfo: ServerInfo?
+    @Binding private var supabaseClient: SupabaseClient?
+
+    init(
+        socketManager: Binding<SocketManager?>,
+        serverInfo: Binding<ServerInfo?>,
+        supabaseClient: Binding<SupabaseClient?>
+    ) {
+        self._socketManager = socketManager
+        self._serverInfo = serverInfo
+        self._supabaseClient = supabaseClient
     }
     
     var body: some View {
@@ -32,8 +35,8 @@ struct SetupView: View {
                 VStack(spacing: 0) {
                     AvalonHeader()
                     
-                    if let serverInfo {
-                        signInView(with: serverInfo)
+                    if let socketManager, let serverInfo {
+                        signInView(using: socketManager, with: serverInfo)
                             .transition(
                                 .offset(x: geometry.size.width)
                             )
@@ -82,6 +85,7 @@ struct SetupView: View {
                 .foregroundStyle(.primaryText)
                 .font(.livvic)
                 .padding(12)
+                .disabled(status == .connecting)
                 .overlay {
                     RoundedRectangle(cornerRadius: 10)
                         .strokeBorder(.tertiaryText)
@@ -141,13 +145,16 @@ struct SetupView: View {
                 }
                 
                 socket.connect(timeoutAfter: 10) {
+                    self.socketManager?.disconnect()
+                    self.socketManager = nil
                     print("timed out")
                 }
             }
+            .disabled(socketManager != nil)
         }
     }
     
-    private func signInView(with serverInfo: ServerInfo) -> some View {
+    private func signInView(using socketManager: SocketManager, with serverInfo: ServerInfo) -> some View {
         VStack(spacing: 0) {
             Spacer()
             
@@ -169,7 +176,6 @@ struct SetupView: View {
                             supabaseURL: serverInfo.supabaseURL,
                             supabaseKey: serverInfo.supabaseAnonKey
                         )
-                        self.supabaseClient = supabaseClient
                         
                         Task {
                             let session = try? await supabaseClient.auth.signInWithOAuth(
@@ -182,15 +188,15 @@ struct SetupView: View {
                                 return
                             }
                             
-                            guard let socketManager else {
-                                return
-                            }
-                            
                             socketManager.defaultSocket.disconnect()
                             socketManager.defaultSocket.connect(withPayload: [
                                 "access_token": session.accessToken,
                                 "refresh_token": session.refreshToken
                             ])
+                            
+                            withAnimation {
+                                self.supabaseClient = supabaseClient
+                            }
                         }
                     } label: {
                         HStack(spacing: 8) {
@@ -209,7 +215,7 @@ struct SetupView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                     }
                     
-                    Text("Connected to \(serverURLString)")
+                    Text("Connected to \(socketManager.socketURL.absoluteString)")
                         .font(.livvic(size: .note))
                         .foregroundStyle(.tertiaryText)
                 }
@@ -236,5 +242,9 @@ struct ServerInfo: Decodable {
 }
 
 #Preview {
-    SetupView(isSetupComplete: .constant(false))
+    SetupView(
+        socketManager: .constant(nil),
+        serverInfo: .constant(nil),
+        supabaseClient: .constant(nil)
+    )
 }

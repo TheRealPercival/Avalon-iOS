@@ -6,6 +6,8 @@
 //
 
 import SwiftUI
+import SocketIO
+import Supabase
 
 struct SettingsView: View {
     @State private var showChangeServerAlert: Bool = false
@@ -21,10 +23,22 @@ struct SettingsView: View {
     
     @ScaledMetric private var imageWidth = 32
     
+    @Binding private var socketManager: SocketManager?
+    @Binding private var serverInfo: ServerInfo?
+    @Binding private var supabaseClient: SupabaseClient?
+    
     private var isAdmin: Bool
     
-    init(isAdmin: Bool = false) {
+    init(
+        isAdmin: Bool = false,
+        socketManager: Binding<SocketManager?>,
+        serverInfo: Binding<ServerInfo?>,
+        supabaseClient: Binding<SupabaseClient?>
+    ) {
         self.isAdmin = isAdmin
+        self._socketManager = socketManager
+        self._serverInfo = serverInfo
+        self._supabaseClient = supabaseClient
     }
     
     var body: some View {
@@ -40,7 +54,7 @@ struct SettingsView: View {
                 
                 makeSection(title: "Server") {
                     HStack {
-                        Text("server.therealpercival.com")
+                        Text(socketManager?.socketURL.absoluteString ?? "unknown server")
                             .foregroundStyle(.primaryText)
                             .font(.livvic)
                         
@@ -66,7 +80,14 @@ struct SettingsView: View {
                         isPresented: $showChangeServerAlert
                     ) {
                         Button("Cancel", role: .cancel) {}
-                        Button("Yes", role: .destructive) {}
+                        Button("Yes", role: .destructive) {
+                            Task {
+                                try? await supabaseClient?.auth.signOut()
+                                socketManager = nil
+                                serverInfo = nil
+                                supabaseClient = nil
+                            }
+                        }
                     } message: {
                         Text("Changing your current server will also sign you out.")
                     }
@@ -80,6 +101,14 @@ struct SettingsView: View {
                         
                         Spacer()
                         
+                        let username = supabaseClient?.auth.currentUser?.userMetadata["full_name"] as? String
+                        var displayedUsername: String {
+                            if let username {
+                                "@\(username)"
+                            } else {
+                                "@unknown"
+                            }
+                        }
                         Text("@ben.json")
                             .foregroundStyle(.tertiaryText)
                             .font(.livvic)
@@ -100,7 +129,12 @@ struct SettingsView: View {
                         isPresented: $showSignOutAlert
                     ) {
                         Button("Cancel", role: .cancel) {}
-                        Button("Yes", role: .destructive) {}
+                        Button("Yes", role: .destructive) {
+                            Task {
+                                try? await supabaseClient?.auth.signOut()
+                                supabaseClient = nil
+                            }
+                        }
                     } message: {
                         Text("Do you really want to sign out?")
                     }
@@ -231,9 +265,9 @@ struct SettingsView: View {
 }
 
 #Preview("Default Settings") {
-    SettingsView()
+//    SettingsView()
 }
 
 #Preview("Admin Settings") {
-    SettingsView(isAdmin: true)
+//    SettingsView(isAdmin: true)
 }
