@@ -169,7 +169,8 @@ struct SetupView: View {
                         // Open Discord authentication flow
                         let supabaseClient = SupabaseClient(
                             supabaseURL: serverInfo.supabaseURL,
-                            supabaseKey: serverInfo.supabaseAnonKey
+                            supabaseKey: serverInfo.supabaseAnonKey,
+                            options: .init(auth: .init(emitLocalSessionAsInitialSession: true))
                         )
                         
                         Task {
