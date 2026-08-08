@@ -81,6 +81,16 @@ extension SetupConfig {
             self.onChangeServer = onChangeServer
         }
         
+        var username: String {
+            guard let user = supabaseClient.auth.currentUser,
+                  let usernameJSON = user.userMetadata["full_name"]
+            else {
+                return "unknown"
+            }
+            
+            return "@\(usernameJSON.rawValue)"
+        }
+        
         func signOut() {
             Task { await onSignOut() }
         }

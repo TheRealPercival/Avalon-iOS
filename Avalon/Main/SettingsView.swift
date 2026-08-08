@@ -84,21 +84,13 @@ struct SettingsView: View {
                 
                 makeSection(title: "Account") {
                     HStack {
-                        Text("Ben")
+                        Text("Ben (hardcoded)")
                             .foregroundStyle(.primaryText)
                             .font(.livvic)
                         
                         Spacer()
                         
-                        let username = setupConfig.supabaseClient.auth.currentUser?.userMetadata["full_name"] as? String
-                        var displayedUsername: String {
-                            if let username {
-                                "@\(username)"
-                            } else {
-                                "@unknown"
-                            }
-                        }
-                        Text(displayedUsername)
+                        Text(setupConfig.username)
                             .foregroundStyle(.tertiaryText)
                             .font(.livvic)
                     }
