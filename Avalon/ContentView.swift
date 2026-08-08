@@ -11,27 +11,17 @@ import SocketIO
 import Supabase
 
 struct ContentView: View {
-    @State private var socketManager: SocketManager?
-    @State private var serverInfo: ServerInfo?
-    @State private var supabaseClient: SupabaseClient?
+    @State private var setupConfig: SetupConfig = .init()
     
     init() {
         UIScrollView.appearance().delaysContentTouches = false
     }
     
     var body: some View {
-        if let socketManager, let serverInfo, let supabaseClient {
-            RootView(
-                socketManager: $socketManager,
-                serverInfo: $serverInfo,
-                supabaseClient: $supabaseClient
-            )
+        if let completeConfig = setupConfig.complete {
+            RootView(setupConfig: completeConfig)
         } else {
-            SetupView(
-                socketManager: $socketManager,
-                serverInfo: $serverInfo,
-                supabaseClient: $supabaseClient
-            )
+            SetupView(setupConfig: $setupConfig)
         }
     }
 }

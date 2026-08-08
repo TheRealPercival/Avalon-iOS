@@ -15,18 +15,12 @@ struct SetupView: View {
     @State private var serverURLString: String = ""
     @State private var status: SocketIOStatus = .notConnected
     
-    @Binding private var socketManager: SocketManager?
-    @Binding private var serverInfo: ServerInfo?
-    @Binding private var supabaseClient: SupabaseClient?
+    @Binding private var setupConfig: SetupConfig
 
     init(
-        socketManager: Binding<SocketManager?>,
-        serverInfo: Binding<ServerInfo?>,
-        supabaseClient: Binding<SupabaseClient?>
+        setupConfig: Binding<SetupConfig>
     ) {
-        self._socketManager = socketManager
-        self._serverInfo = serverInfo
-        self._supabaseClient = supabaseClient
+        self._setupConfig = setupConfig
     }
     
     var body: some View {
@@ -35,7 +29,8 @@ struct SetupView: View {
                 VStack(spacing: 0) {
                     AvalonHeader()
                     
-                    if let socketManager, let serverInfo {
+                    if let socketManager = setupConfig.socketManager,
+                       let serverInfo = setupConfig.serverInfo {
                         signInView(using: socketManager, with: serverInfo)
                             .transition(
                                 .offset(x: geometry.size.width)
@@ -107,7 +102,7 @@ struct SetupView: View {
                     config: [.log(true), .compress]
                 )
                 
-                self.socketManager = socketManager
+                setupConfig.socketManager = socketManager
                 
                 let socket = socketManager.defaultSocket
                 status = socket.status
@@ -140,17 +135,17 @@ struct SetupView: View {
                     }
                     
                     withAnimation {
-                        self.serverInfo = serverInfo
+                        setupConfig.serverInfo = serverInfo
                     }
                 }
                 
                 socket.connect(timeoutAfter: 10) {
-                    self.socketManager?.disconnect()
-                    self.socketManager = nil
+                    setupConfig.socketManager?.disconnect()
+                    setupConfig.socketManager = nil
                     print("timed out")
                 }
             }
-            .disabled(socketManager != nil)
+            .disabled(setupConfig.socketManager != nil)
         }
     }
     
@@ -195,7 +190,7 @@ struct SetupView: View {
                             ])
                             
                             withAnimation {
-                                self.supabaseClient = supabaseClient
+                                setupConfig.supabaseClient = supabaseClient
                             }
                         }
                     } label: {
@@ -242,9 +237,5 @@ struct ServerInfo: Decodable {
 }
 
 #Preview {
-    SetupView(
-        socketManager: .constant(nil),
-        serverInfo: .constant(nil),
-        supabaseClient: .constant(nil)
-    )
+    SetupView(setupConfig: .constant(.init()))
 }

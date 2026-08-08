@@ -12,18 +12,10 @@ import Supabase
 struct RootView: View {
     @State private var currentTab: Int = 1
     
-    @Binding private var socketManager: SocketManager?
-    @Binding private var serverInfo: ServerInfo?
-    @Binding private var supabaseClient: SupabaseClient?
+    private let setupConfig: SetupConfig.CompleteConfig
     
-    init(
-        socketManager: Binding<SocketManager?>,
-        serverInfo: Binding<ServerInfo?>,
-        supabaseClient: Binding<SupabaseClient?>
-    ) {
-        self._socketManager = socketManager
-        self._serverInfo = serverInfo
-        self._supabaseClient = supabaseClient
+    init(setupConfig: SetupConfig.CompleteConfig) {
+        self.setupConfig = setupConfig
     }
     
     var body: some View {
@@ -31,9 +23,7 @@ struct RootView: View {
             Tab("Settings", systemImage: "gear", value: 0) {
                 SettingsView(
                     isAdmin: true,
-                    socketManager: $socketManager,
-                    serverInfo: $serverInfo,
-                    supabaseClient: $supabaseClient
+                    setupConfig: setupConfig
                 )
             }
             
