@@ -11,15 +11,10 @@ import Supabase
 
 struct SetupView: View {
     @ScaledMetric private var logoHeight = 18
-    
-    @State private var serverURLString: String = ""
-    @State private var status: SocketIOStatus = .notConnected
-    
+    @State private var viewModel: SetupViewModel = .init()
     @Binding private var setupConfig: SetupConfig
 
-    init(
-        setupConfig: Binding<SetupConfig>
-    ) {
+    init(setupConfig: Binding<SetupConfig>) {
         self._setupConfig = setupConfig
     }
     
@@ -71,7 +66,7 @@ struct SetupView: View {
                 
                 TextField(
                     "Server URL",
-                    text: $serverURLString,
+                    text: $viewModel.serverURLString,
                     prompt: Text("Server URL").foregroundStyle(.subtleText)
                 )
                 .keyboardType(.URL)
@@ -80,7 +75,7 @@ struct SetupView: View {
                 .foregroundStyle(.primaryText)
                 .font(.livvic)
                 .padding(12)
-                .disabled(status == .connecting)
+                .disabled(viewModel.isConnectButtonDisabled)
                 .overlay {
                     RoundedRectangle(cornerRadius: 10)
                         .strokeBorder(.tertiaryText)
@@ -89,63 +84,11 @@ struct SetupView: View {
             
             Spacer()
             
-            AvalonButton(buttonText) {
-                // Connect to WebSocket server to verify
-                guard let serverURL = URL(string: serverURLString) else {
-                    // Throw error message to user
-                    print("Error: Invalid URL")
-                    return
-                }
-                
-                let socketManager = SocketManager(
-                    socketURL: serverURL,
-                    config: [.log(true), .compress]
-                )
-                
-                setupConfig.socketManager = socketManager
-                
-                let socket = socketManager.defaultSocket
-                status = socket.status
-                    
-                socket.on(clientEvent: .connect) { _, _ in
-                    print(".connect")
-                }
-                
-                socket.on(clientEvent: .disconnect) { _, _ in
-                    print(".disconnect")
-                }
-                
-                socket.on(clientEvent: .error) { _, _ in
-                    print(".error")
-                }
-                
-                socket.on(clientEvent: .statusChange) { _, _ in
-                    print(".statusChange")
-                    status = socket.status
-                }
-                
-                socket.on("info") { data, _ in
-                    guard let serverInfoDict = data.first,
-                          let serverInfoData = try? JSONSerialization.data(withJSONObject: serverInfoDict),
-                          let serverInfo = try? JSONDecoder().decode(ServerInfo.self, from: serverInfoData)
-                    else {
-                        // Throw error message to user
-                        print("Error: Could not parse server info")
-                        return
-                    }
-                    
-                    withAnimation {
-                        setupConfig.serverInfo = serverInfo
-                    }
-                }
-                
-                socket.connect(timeoutAfter: 10) {
-                    setupConfig.socketManager?.disconnect()
-                    setupConfig.socketManager = nil
-                    print("timed out")
-                }
+            AvalonButton(viewModel.connectButtonText) {
+                viewModel.connectToServer(setupConfig: setupConfig)
             }
-            .disabled(setupConfig.socketManager != nil)
+            .disabled(viewModel.isConnectButtonDisabled)
+            .opacity(viewModel.isConnectButtonDisabled ? 0.35 : 1)
         }
     }
     
@@ -166,33 +109,12 @@ struct SetupView: View {
                 
                 VStack(spacing: 8) {
                     Button {
-                        // Open Discord authentication flow
-                        let supabaseClient = SupabaseClient(
-                            supabaseURL: serverInfo.supabaseURL,
-                            supabaseKey: serverInfo.supabaseAnonKey,
-                            options: .init(auth: .init(emitLocalSessionAsInitialSession: true))
-                        )
-                        
                         Task {
-                            let session = try? await supabaseClient.auth.signInWithOAuth(
-                                provider: .discord,
-                                redirectTo: URL(string: "avalontrp://setup")
+                            await viewModel.signIn(
+                                setupConfig: setupConfig,
+                                socketManager: socketManager,
+                                serverInfo: serverInfo
                             )
-                            
-                            guard let session else {
-                                print("Error: Auth session failed")
-                                return
-                            }
-                            
-                            socketManager.defaultSocket.disconnect()
-                            socketManager.defaultSocket.connect(withPayload: [
-                                "access_token": session.accessToken,
-                                "refresh_token": session.refreshToken
-                            ])
-                            
-                            withAnimation {
-                                setupConfig.supabaseClient = supabaseClient
-                            }
                         }
                     } label: {
                         HStack(spacing: 8) {
@@ -219,14 +141,6 @@ struct SetupView: View {
             .multilineTextAlignment(.center)
             
             Spacer()
-        }
-    }
-    
-    private var buttonText: String {
-        switch status {
-        case .notConnected, .disconnected: "Connect"
-        case .connecting: "Connecting..."
-        case .connected: "Connected!"
         }
     }
 }
