@@ -64,21 +64,31 @@ struct SetupView: View {
                 }
                 .multilineTextAlignment(.center)
                 
-                TextField(
-                    "Server URL",
-                    text: $viewModel.serverURLString,
-                    prompt: Text("Server URL").foregroundStyle(.subtleText)
-                )
-                .keyboardType(.URL)
-                .autocorrectionDisabled()
-                .textInputAutocapitalization(.never)
-                .foregroundStyle(.primaryText)
-                .font(.livvic)
-                .padding(12)
-                .disabled(viewModel.isConnectButtonDisabled)
-                .overlay {
-                    RoundedRectangle(cornerRadius: 10)
-                        .strokeBorder(.tertiaryText)
+                VStack(spacing: 8) {
+                    TextField(
+                        "Server URL",
+                        text: $viewModel.serverURLString,
+                        prompt: Text("Server URL").foregroundStyle(.subtleText)
+                    )
+                    .keyboardType(.URL)
+                    .autocorrectionDisabled()
+                    .textInputAutocapitalization(.never)
+                    .foregroundStyle(.primaryText)
+                    .font(.livvic)
+                    .padding(12)
+                    .disabled(viewModel.isConnectButtonDisabled)
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 10)
+                            .strokeBorder(viewModel.serverURLErrorString == nil ? .tertiaryText : .red2)
+                    }
+                    
+                    Text(viewModel.serverURLErrorString ?? "\u{200B}")
+                        .foregroundStyle(.red2)
+                        .font(.livvic(size: .note))
+                        .fixedSize()
+                        .onChange(of: viewModel.serverURLString) {
+                            viewModel.serverURLErrorString = nil
+                        }
                 }
             }
             

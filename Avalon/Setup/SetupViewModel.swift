@@ -14,12 +14,12 @@ class SetupViewModel {
     private static let customAppSchemeURL: URL? = .init(string: "avalontrp://setup")
     
     var serverURLString: String = ""
+    var serverURLErrorString: String?
     var status: SocketIOStatus = .notConnected
     
     func connectToServer(setupConfig: SetupConfig) {
         guard let serverURL = URL(string: serverURLString) else {
-            // Display error to user
-            print("Error: Invalid URL")
+            serverURLErrorString = "Invalid URL"
             return
         }
         
@@ -50,12 +50,12 @@ class SetupViewModel {
             self?.status = socket.status
         }
         
-        socket.on("info") { data, _ in
+        socket.once("info") { [weak self] data, _ in
             guard let serverInfoDict = data.first,
                   let serverInfoData = try? JSONSerialization.data(withJSONObject: serverInfoDict),
                   let serverInfo = try? JSONDecoder().decode(ServerInfo.self, from: serverInfoData)
             else {
-                print("Error: Could not parse server info")
+                self?.serverURLErrorString = "Server info could not be parsed"
                 return
             }
             
@@ -64,10 +64,14 @@ class SetupViewModel {
             }
         }
         
-        socket.connect(timeoutAfter: 10) {
-            setupConfig.socketManager?.disconnect()
-            setupConfig.socketManager = nil
-            print("timed out")
+        serverURLErrorString = nil
+        socket.connect(timeoutAfter: 10) { [weak self] in
+            if let socketManager = setupConfig.socketManager, setupConfig.serverInfo == nil {
+                self?.serverURLErrorString = "Could not connect to server"
+                
+                socketManager.disconnect()
+                setupConfig.socketManager = nil
+            }
         }
     }
     
