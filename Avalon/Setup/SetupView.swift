@@ -76,7 +76,7 @@ struct SetupView: View {
                     .foregroundStyle(.primaryText)
                     .font(.livvic)
                     .padding(12)
-                    .disabled(viewModel.isConnectButtonDisabled)
+                    .disabled(setupConfig.serverStatus.active)
                     .overlay {
                         RoundedRectangle(cornerRadius: 10)
                             .strokeBorder(viewModel.serverURLErrorString == nil ? .tertiaryText : .red2)
@@ -94,11 +94,11 @@ struct SetupView: View {
             
             Spacer()
             
-            AvalonButton(viewModel.connectButtonText) {
+            AvalonButton(viewModel.connectButtonText(for: setupConfig.serverStatus)) {
                 viewModel.connectToServer(setupConfig: setupConfig)
             }
-            .disabled(viewModel.isConnectButtonDisabled)
-            .opacity(viewModel.isConnectButtonDisabled ? 0.35 : 1)
+            .disabled(setupConfig.serverStatus.active)
+            .opacity(setupConfig.serverStatus.active ? 0.35 : 1)
         }
     }
     

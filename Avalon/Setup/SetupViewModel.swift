@@ -15,7 +15,6 @@ class SetupViewModel {
     
     var serverURLString: String = ""
     var serverURLErrorString: String?
-    var status: SocketIOStatus = .notConnected
     
     func connectToServer(setupConfig: SetupConfig) {
         guard let serverURL = URL(string: serverURLString) else {
@@ -31,24 +30,6 @@ class SetupViewModel {
         setupConfig.socketManager = socketManager
         
         let socket = socketManager.defaultSocket
-        status = socket.status
-            
-        socket.on(clientEvent: .connect) { _, _ in
-            print(".connect")
-        }
-        
-        socket.on(clientEvent: .disconnect) { _, _ in
-            print(".disconnect")
-        }
-        
-        socket.on(clientEvent: .error) { _, _ in
-            print(".error")
-        }
-        
-        socket.on(clientEvent: .statusChange) { [weak self] _, _ in
-            print(".statusChange")
-            self?.status = socket.status
-        }
         
         socket.once("info") { [weak self] data, _ in
             guard let serverInfoDict = data.first,
@@ -65,7 +46,7 @@ class SetupViewModel {
         }
         
         serverURLErrorString = nil
-        socket.connect(timeoutAfter: 10) { [weak self] in
+        socket.connect(timeoutAfter: 5) { [weak self] in
             if let socketManager = setupConfig.socketManager, setupConfig.serverInfo == nil {
                 self?.serverURLErrorString = "Could not connect to server"
                 
@@ -106,18 +87,11 @@ class SetupViewModel {
 }
 
 extension SetupViewModel {
-    var connectButtonText: String {
+    func connectButtonText(for status: SocketIOStatus) -> String {
         switch status {
         case .notConnected, .disconnected: "Connect"
         case .connecting: "Connecting..."
         case .connected: "Connected!"
-        }
-    }
-    
-    var isConnectButtonDisabled: Bool {
-        switch status {
-        case .connecting, .connected: true
-        case .notConnected, .disconnected: false
         }
     }
 }

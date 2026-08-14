@@ -12,9 +12,13 @@ import Supabase
 @MainActor
 @Observable
 class SetupConfig {
-    var socketManager: SocketManager?
+    var socketManager: SocketManager? {
+        didSet { attachStatusListener() }
+    }
+    
     var serverInfo: ServerInfo?
     var supabaseClient: SupabaseClient?
+    var serverStatus: SocketIOStatus
     
     init(
         socketManager: SocketManager?,
@@ -24,6 +28,7 @@ class SetupConfig {
         self.socketManager = socketManager
         self.serverInfo = serverInfo
         self.supabaseClient = supabaseClient
+        self.serverStatus = socketManager?.status ?? .notConnected
     }
     
     convenience init() {
@@ -39,6 +44,7 @@ class SetupConfig {
             socketManager: socketManager,
             serverInfo: serverInfo,
             supabaseClient: supabaseClient,
+            serverStatus: serverStatus,
             onSignOut: signOut,
             onChangeServer: changeServer
         )
@@ -55,20 +61,36 @@ class SetupConfig {
         socketManager = nil
         serverInfo = nil
     }
+    
+    private func attachStatusListener() {
+        guard let socket = socketManager?.defaultSocket else { return }
+        
+        let statusListenerId = socket.on(clientEvent: .statusChange) { [weak self] _, _ in
+            guard let self else {
+                socket.off(id: statusListenerId)
+                return
+            }
+            
+            self.serverStatus = socket.status
+        }
+    }
 }
 
 extension SetupConfig {
     struct CompleteConfig {
-        var socketManager: SocketManager
-        var serverInfo: ServerInfo
-        var supabaseClient: SupabaseClient
-        private var onSignOut: () async -> Void
-        private var onChangeServer: () async -> Void
+        let socketManager: SocketManager
+        let serverInfo: ServerInfo
+        let supabaseClient: SupabaseClient
+        let serverStatus: SocketIOStatus
+        
+        private let onSignOut: () async -> Void
+        private let onChangeServer: () async -> Void
         
         init?(
             socketManager: SocketManager?,
             serverInfo: ServerInfo?,
             supabaseClient: SupabaseClient?,
+            serverStatus: SocketIOStatus,
             onSignOut: @escaping () async -> Void,
             onChangeServer: @escaping () async -> Void
         ) {
@@ -77,6 +99,7 @@ extension SetupConfig {
             self.socketManager = socketManager
             self.serverInfo = serverInfo
             self.supabaseClient = supabaseClient
+            self.serverStatus = serverStatus
             self.onSignOut = onSignOut
             self.onChangeServer = onChangeServer
         }

@@ -54,9 +54,7 @@ struct SettingsView: View {
                         
                         Spacer()
                         
-                        Image(systemName: "checkmark")
-                            .foregroundStyle(.green2)
-                            .font(.livvic)
+                        serverStatusIcon
                     }
                     .padding(12)
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -66,7 +64,6 @@ struct SettingsView: View {
                     }
                     
                     AvalonButton("Change Server", isDestructive: true) {
-                        // Go back to setup screen
                         showChangeServerAlert = true
                     }
                     .alert(
@@ -102,7 +99,6 @@ struct SettingsView: View {
                     }
                     
                     AvalonButton("Sign Out", isDestructive: true) {
-                        // Go back to setup screen
                         showSignOutAlert = true
                     }
                     .alert(
@@ -168,6 +164,13 @@ struct SettingsView: View {
             makeUserRow(color: .green1, primaryText: "Drew", secondaryText: "@65472624657")
             makeUserRow(color: .blue1, primaryText: "Thomas", secondaryText: "@_shoe_")
         }
+    }
+    
+    private var serverStatusIcon: some View {
+        let isConnected = setupConfig.serverStatus == .connected
+        return Image(systemName: isConnected ? "checkmark" : "xmark")
+            .foregroundStyle(isConnected ? .green2 : .red1)
+            .font(.livvic)
     }
     
     private func makeSection(title: String, @ViewBuilder content: () -> some View) -> some View {
