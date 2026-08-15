@@ -38,7 +38,12 @@ class SetupConfig {
     
     convenience init() {
         self.init(
-            socketManager: AvalonStorage.shared.serverURL.map { .init(socketURL: $0) },
+            socketManager: AvalonStorage.shared.serverURL.map {
+                .init(
+                    socketURL: $0,
+                    config: [.log(true), .compress]
+                )
+            },
             serverInfo: AvalonStorage.shared.serverInfo,
             supabaseClient: AvalonStorage.shared.serverInfo.map {
                 .init(
