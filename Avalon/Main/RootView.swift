@@ -35,6 +35,8 @@ struct RootView: View {
     }
 }
 
+#if DEBUG
 #Preview {
-//    RootView()
+    RootView(setupConfig: .preview)
 }
+#endif

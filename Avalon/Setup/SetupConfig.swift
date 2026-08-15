@@ -104,6 +104,22 @@ extension SetupConfig {
             self.onChangeServer = onChangeServer
         }
         
+        init(
+            socketManager: SocketManager,
+            serverInfo: ServerInfo,
+            supabaseClient: SupabaseClient,
+            serverStatus: SocketIOStatus,
+            onSignOut: @escaping () async -> Void,
+            onChangeServer: @escaping () async -> Void
+        ) {
+            self.socketManager = socketManager
+            self.serverInfo = serverInfo
+            self.supabaseClient = supabaseClient
+            self.serverStatus = serverStatus
+            self.onSignOut = onSignOut
+            self.onChangeServer = onChangeServer
+        }
+        
         var username: String {
             guard let user = supabaseClient.auth.currentUser,
                   let usernameJSON = user.userMetadata["full_name"]
@@ -123,3 +139,27 @@ extension SetupConfig {
         }
     }
 }
+
+#if DEBUG
+extension SetupConfig.CompleteConfig {
+    static var preview: Self {
+        .init(
+            socketManager: .init(
+                socketURL: .init(string: "https://server.therealpercival.com")!
+            ),
+            serverInfo: .init(
+                version: "1.0.0",
+                supabaseURL: .init(string: "https://therealpercival.supabase.com")!,
+                supabaseAnonKey: "abcd1234"
+            ),
+            supabaseClient: .init(
+                supabaseURL: .init(string: "https://therealpercival.supabase.com")!,
+                supabaseKey: "abcd1234"
+            ),
+            serverStatus: .connected,
+            onSignOut: {},
+            onChangeServer: {}
+        )
+    }
+}
+#endif

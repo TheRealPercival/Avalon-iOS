@@ -245,10 +245,12 @@ struct SettingsView: View {
     }
 }
 
+#if DEBUG
 #Preview("Default Settings") {
-//    SettingsView()
+    SettingsView(setupConfig: .preview)
 }
 
 #Preview("Admin Settings") {
-//    SettingsView(isAdmin: true)
+    SettingsView(isAdmin: true, setupConfig: .preview)
 }
+#endif
