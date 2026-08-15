@@ -40,7 +40,13 @@ class SetupConfig {
         self.init(
             socketManager: AvalonStorage.shared.serverURL.map { .init(socketURL: $0) },
             serverInfo: AvalonStorage.shared.serverInfo,
-            supabaseClient: nil
+            supabaseClient: AvalonStorage.shared.serverInfo.map {
+                .init(
+                    supabaseURL: $0.supabaseURL,
+                    supabaseKey: $0.supabaseAnonKey,
+                    options: .init(auth: .init(emitLocalSessionAsInitialSession: true))
+                )
+            }
         )
     }
     
@@ -71,9 +77,18 @@ class SetupConfig {
         AvalonStorage.shared.serverURL = socketManager?.socketURL
         attachStatusListener()
         
-        if let socketManager, !socketManager.status.active {
-            socketManager.defaultSocket.connect()
+        guard let socketManager, !socketManager.status.active else { return }
+
+        var payload: [String: String]? {
+            guard let session = supabaseClient?.auth.currentSession else { return nil }
+            
+            return [
+                "access_token": session.accessToken,
+                "refresh_token": session.refreshToken
+            ]
         }
+        
+        socketManager.defaultSocket.connect(withPayload: payload)
     }
     
     private func attachStatusListener() {
