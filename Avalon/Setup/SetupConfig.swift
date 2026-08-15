@@ -13,10 +13,13 @@ import Supabase
 @Observable
 class SetupConfig {
     var socketManager: SocketManager? {
-        didSet { attachStatusListener() }
+        didSet { onSetSocketManager() }
     }
     
-    var serverInfo: ServerInfo?
+    var serverInfo: ServerInfo? {
+        didSet { AvalonStorage.shared.serverInfo = serverInfo }
+    }
+    
     var supabaseClient: SupabaseClient?
     var serverStatus: SocketIOStatus
     
@@ -29,12 +32,14 @@ class SetupConfig {
         self.serverInfo = serverInfo
         self.supabaseClient = supabaseClient
         self.serverStatus = socketManager?.status ?? .notConnected
+        
+        onSetSocketManager()
     }
     
     convenience init() {
         self.init(
-            socketManager: nil,
-            serverInfo: nil,
+            socketManager: AvalonStorage.shared.serverURL.map { .init(socketURL: $0) },
+            serverInfo: AvalonStorage.shared.serverInfo,
             supabaseClient: nil
         )
     }
@@ -60,6 +65,15 @@ class SetupConfig {
         socketManager?.disconnect()
         socketManager = nil
         serverInfo = nil
+    }
+    
+    private func onSetSocketManager() {
+        AvalonStorage.shared.serverURL = socketManager?.socketURL
+        attachStatusListener()
+        
+        if let socketManager, !socketManager.status.active {
+            socketManager.defaultSocket.connect()
+        }
     }
     
     private func attachStatusListener() {
