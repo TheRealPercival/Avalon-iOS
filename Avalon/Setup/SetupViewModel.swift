@@ -17,7 +17,7 @@ class SetupViewModel {
     var serverURLErrorString: String?
     
     func connectToServer(setupConfig: SetupConfig) {
-        guard let serverURL = URL(string: serverURLString) else {
+        guard let serverURL else {
             serverURLErrorString = "Invalid URL"
             return
         }
@@ -84,14 +84,22 @@ class SetupViewModel {
             setupConfig.supabaseClient = supabaseClient
         }
     }
-}
-
-extension SetupViewModel {
+    
     func connectButtonText(for status: SocketIOStatus) -> String {
         switch status {
         case .notConnected, .disconnected: "Connect"
         case .connecting: "Connecting..."
         case .connected: "Connected!"
         }
+    }
+    
+    private var serverURL: URL? {
+        guard let components = URLComponents(string: serverURLString),
+              components.scheme == nil
+        else {
+            return URL(string: serverURLString)
+        }
+        
+        return URL(string: "https://\(self.serverURLString)")
     }
 }

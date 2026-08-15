@@ -143,7 +143,7 @@ struct SetupView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                     }
                     
-                    Text("Connected to \(socketManager.socketURL.absoluteString)")
+                    Text("Connected to \(socketManager.socketURL.hostString)")
                         .font(.livvic(size: .note))
                         .foregroundStyle(.tertiaryText)
                 }

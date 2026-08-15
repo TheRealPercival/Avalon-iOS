@@ -48,7 +48,7 @@ struct SettingsView: View {
                 
                 makeSection(title: "Server") {
                     HStack {
-                        Text(setupConfig.socketManager.socketURL.absoluteString)
+                        Text(setupConfig.socketManager.socketURL.hostString)
                             .foregroundStyle(.primaryText)
                             .font(.livvic)
                         
