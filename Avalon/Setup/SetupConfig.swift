@@ -37,6 +37,20 @@ class SetupConfig {
     }
     
     convenience init() {
+        let supabaseClient: SupabaseClient? = {
+            guard let serverInfo = AvalonStorage.shared.serverInfo else { return nil }
+            
+            let supabaseClient = SupabaseClient(
+                supabaseURL: serverInfo.supabaseURL,
+                supabaseKey: serverInfo.supabaseAnonKey,
+                options: .init(auth: .init(emitLocalSessionAsInitialSession: true))
+            )
+            
+            guard supabaseClient.auth.currentSession != nil else { return nil }
+            
+            return supabaseClient
+        }()
+        
         self.init(
             socketManager: AvalonStorage.shared.serverURL.map {
                 .init(
@@ -45,13 +59,7 @@ class SetupConfig {
                 )
             },
             serverInfo: AvalonStorage.shared.serverInfo,
-            supabaseClient: AvalonStorage.shared.serverInfo.map {
-                .init(
-                    supabaseURL: $0.supabaseURL,
-                    supabaseKey: $0.supabaseAnonKey,
-                    options: .init(auth: .init(emitLocalSessionAsInitialSession: true))
-                )
-            }
+            supabaseClient: supabaseClient
         )
     }
     
@@ -64,6 +72,22 @@ class SetupConfig {
             onSignOut: signOut,
             onChangeServer: changeServer
         )
+    }
+    
+    public func connectToServer() {
+        guard let socketManager, !socketManager.status.active else { return }
+
+        var payload: [String: String]? {
+            guard let session = supabaseClient?.auth.currentSession else { return nil }
+            
+            return [
+                "access_token": session.accessToken,
+                "refresh_token": session.refreshToken
+            ]
+        }
+        
+        print("BLK: setupConfig.connectToServer()")
+        socketManager.defaultSocket.connect(withPayload: payload)
     }
     
     private func signOut() async {
@@ -81,19 +105,6 @@ class SetupConfig {
     private func onSetSocketManager() {
         AvalonStorage.shared.serverURL = socketManager?.socketURL
         attachStatusListener()
-        
-        guard let socketManager, !socketManager.status.active else { return }
-
-        var payload: [String: String]? {
-            guard let session = supabaseClient?.auth.currentSession else { return nil }
-            
-            return [
-                "access_token": session.accessToken,
-                "refresh_token": session.refreshToken
-            ]
-        }
-        
-        socketManager.defaultSocket.connect(withPayload: payload)
     }
     
     private func attachStatusListener() {
