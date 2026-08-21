@@ -18,10 +18,15 @@ struct ContentView: View {
     }
     
     var body: some View {
-        if let completeConfig = setupConfig.complete {
-            RootView(setupConfig: completeConfig)
-        } else {
-            SetupView(setupConfig: $setupConfig)
+        Group {
+            if let completeConfig = setupConfig.complete {
+                RootView(setupConfig: completeConfig)
+            } else {
+                SetupView(setupConfig: $setupConfig)
+            }
+        }
+        .onAppear {
+            setupConfig.connectToServer()
         }
     }
 }

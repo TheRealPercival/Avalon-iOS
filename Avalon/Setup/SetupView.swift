@@ -155,7 +155,7 @@ struct SetupView: View {
     }
 }
 
-struct ServerInfo: Decodable {
+struct ServerInfo: Codable {
     let version: String
     let supabaseURL: URL
     let supabaseAnonKey: String
