@@ -6,17 +6,16 @@
 //
 
 import SwiftUI
+import SocketIO
+import Supabase
 
 struct SetupView: View {
     @ScaledMetric private var logoHeight = 18
-    
-    @State private var serverURLString: String = ""
-    @State private var isServerURLValid: Bool = false
-    
-    @Binding private var isSetupComplete: Bool
-    
-    init(isSetupComplete: Binding<Bool>) {
-        self._isSetupComplete = isSetupComplete
+    @State private var viewModel: SetupViewModel = .init()
+    @Binding private var setupConfig: SetupConfig
+
+    init(setupConfig: Binding<SetupConfig>) {
+        self._setupConfig = setupConfig
     }
     
     var body: some View {
@@ -25,8 +24,9 @@ struct SetupView: View {
                 VStack(spacing: 0) {
                     AvalonHeader()
                     
-                    if isServerURLValid {
-                        signInView
+                    if let socketManager = setupConfig.socketManager,
+                       let serverInfo = setupConfig.serverInfo {
+                        signInView(using: socketManager, with: serverInfo)
                             .transition(
                                 .offset(x: geometry.size.width)
                             )
@@ -48,7 +48,7 @@ struct SetupView: View {
         }
     }
     
-    var serverURLView: some View {
+    private var serverURLView: some View {
         VStack(spacing: 0) {
             Spacer()
             
@@ -64,35 +64,45 @@ struct SetupView: View {
                 }
                 .multilineTextAlignment(.center)
                 
-                TextField(
-                    "Server URL",
-                    text: $serverURLString,
-                    prompt: Text("Server URL").foregroundStyle(.subtleText)
-                )
-                .keyboardType(.URL)
-                .autocorrectionDisabled()
-                .textInputAutocapitalization(.never)
-                .foregroundStyle(.primaryText)
-                .font(.livvic)
-                .padding(12)
-                .overlay {
-                    RoundedRectangle(cornerRadius: 10)
-                        .strokeBorder(.tertiaryText)
+                VStack(spacing: 8) {
+                    TextField(
+                        "Server URL",
+                        text: $viewModel.serverURLString,
+                        prompt: Text("Server URL").foregroundStyle(.subtleText)
+                    )
+                    .keyboardType(.URL)
+                    .autocorrectionDisabled()
+                    .textInputAutocapitalization(.never)
+                    .foregroundStyle(.primaryText)
+                    .font(.livvic)
+                    .padding(12)
+                    .disabled(setupConfig.serverStatus.active)
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 10)
+                            .strokeBorder(viewModel.serverURLErrorString == nil ? .tertiaryText : .red2)
+                    }
+                    
+                    Text(viewModel.serverURLErrorString ?? "\u{200B}")
+                        .foregroundStyle(.red2)
+                        .font(.livvic(size: .note))
+                        .fixedSize()
+                        .onChange(of: viewModel.serverURLString) {
+                            viewModel.serverURLErrorString = nil
+                        }
                 }
             }
             
             Spacer()
             
-            AvalonButton("Connect") {
-                // Connect to WebSocket server to verify
-                withAnimation {
-                    isServerURLValid = true
-                }
+            AvalonButton(viewModel.connectButtonText(for: setupConfig.serverStatus)) {
+                viewModel.connectToServer(setupConfig: setupConfig)
             }
+            .disabled(setupConfig.serverStatus.active)
+            .opacity(setupConfig.serverStatus.active ? 0.35 : 1)
         }
     }
     
-    var signInView: some View {
+    private func signInView(using socketManager: SocketManager, with serverInfo: ServerInfo) -> some View {
         VStack(spacing: 0) {
             Spacer()
             
@@ -109,8 +119,13 @@ struct SetupView: View {
                 
                 VStack(spacing: 8) {
                     Button {
-                        // Open Discord authentication flow
-                        isSetupComplete = true
+                        Task {
+                            await viewModel.signIn(
+                                setupConfig: setupConfig,
+                                socketManager: socketManager,
+                                serverInfo: serverInfo
+                            )
+                        }
                     } label: {
                         HStack(spacing: 8) {
                             Image(.discordLogo)
@@ -128,7 +143,7 @@ struct SetupView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                     }
                     
-                    Text("Connected to \(serverURLString)")
+                    Text("Connected to \(socketManager.socketURL.hostString)")
                         .font(.livvic(size: .note))
                         .foregroundStyle(.tertiaryText)
                 }
@@ -140,6 +155,12 @@ struct SetupView: View {
     }
 }
 
+struct ServerInfo: Decodable {
+    let version: String
+    let supabaseURL: URL
+    let supabaseAnonKey: String
+}
+
 #Preview {
-    SetupView(isSetupComplete: .constant(false))
+    SetupView(setupConfig: .constant(.init()))
 }

@@ -6,14 +6,25 @@
 //
 
 import SwiftUI
+import SocketIO
+import Supabase
 
 struct RootView: View {
     @State private var currentTab: Int = 1
     
+    private let setupConfig: SetupConfig.CompleteConfig
+    
+    init(setupConfig: SetupConfig.CompleteConfig) {
+        self.setupConfig = setupConfig
+    }
+    
     var body: some View {
         TabView(selection: $currentTab) {
             Tab("Settings", systemImage: "gear", value: 0) {
-                SettingsView(isAdmin: true)
+                SettingsView(
+                    isAdmin: true,
+                    setupConfig: setupConfig
+                )
             }
             
             Tab("Game", systemImage: "gamecontroller", value: 1) {
@@ -24,6 +35,8 @@ struct RootView: View {
     }
 }
 
+#if DEBUG
 #Preview {
-    RootView()
+    RootView(setupConfig: .preview)
 }
+#endif

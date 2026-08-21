@@ -6,6 +6,8 @@
 //
 
 import SwiftUI
+import SocketIO
+import Supabase
 
 struct SettingsView: View {
     @State private var showChangeServerAlert: Bool = false
@@ -21,10 +23,16 @@ struct SettingsView: View {
     
     @ScaledMetric private var imageWidth = 32
     
+    private let setupConfig: SetupConfig.CompleteConfig
+    
     private var isAdmin: Bool
     
-    init(isAdmin: Bool = false) {
+    init(
+        isAdmin: Bool = false,
+        setupConfig: SetupConfig.CompleteConfig
+    ) {
         self.isAdmin = isAdmin
+        self.setupConfig = setupConfig
     }
     
     var body: some View {
@@ -40,15 +48,13 @@ struct SettingsView: View {
                 
                 makeSection(title: "Server") {
                     HStack {
-                        Text("server.therealpercival.com")
+                        Text(setupConfig.socketManager.socketURL.hostString)
                             .foregroundStyle(.primaryText)
                             .font(.livvic)
                         
                         Spacer()
                         
-                        Image(systemName: "checkmark")
-                            .foregroundStyle(.green2)
-                            .font(.livvic)
+                        serverStatusIcon
                     }
                     .padding(12)
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -58,7 +64,6 @@ struct SettingsView: View {
                     }
                     
                     AvalonButton("Change Server", isDestructive: true) {
-                        // Go back to setup screen
                         showChangeServerAlert = true
                     }
                     .alert(
@@ -66,7 +71,9 @@ struct SettingsView: View {
                         isPresented: $showChangeServerAlert
                     ) {
                         Button("Cancel", role: .cancel) {}
-                        Button("Yes", role: .destructive) {}
+                        Button("Yes", role: .destructive) {
+                            setupConfig.changeServer()
+                        }
                     } message: {
                         Text("Changing your current server will also sign you out.")
                     }
@@ -74,13 +81,13 @@ struct SettingsView: View {
                 
                 makeSection(title: "Account") {
                     HStack {
-                        Text("Ben")
+                        Text("Ben (hardcoded)")
                             .foregroundStyle(.primaryText)
                             .font(.livvic)
                         
                         Spacer()
                         
-                        Text("@ben.json")
+                        Text(setupConfig.username)
                             .foregroundStyle(.tertiaryText)
                             .font(.livvic)
                     }
@@ -92,7 +99,6 @@ struct SettingsView: View {
                     }
                     
                     AvalonButton("Sign Out", isDestructive: true) {
-                        // Go back to setup screen
                         showSignOutAlert = true
                     }
                     .alert(
@@ -100,7 +106,9 @@ struct SettingsView: View {
                         isPresented: $showSignOutAlert
                     ) {
                         Button("Cancel", role: .cancel) {}
-                        Button("Yes", role: .destructive) {}
+                        Button("Yes", role: .destructive) {
+                            setupConfig.signOut()
+                        }
                     } message: {
                         Text("Do you really want to sign out?")
                     }
@@ -156,6 +164,13 @@ struct SettingsView: View {
             makeUserRow(color: .green1, primaryText: "Drew", secondaryText: "@65472624657")
             makeUserRow(color: .blue1, primaryText: "Thomas", secondaryText: "@_shoe_")
         }
+    }
+    
+    private var serverStatusIcon: some View {
+        let isConnected = setupConfig.serverStatus == .connected
+        return Image(systemName: isConnected ? "checkmark" : "xmark")
+            .foregroundStyle(isConnected ? .green2 : .red1)
+            .font(.livvic)
     }
     
     private func makeSection(title: String, @ViewBuilder content: () -> some View) -> some View {
@@ -230,10 +245,12 @@ struct SettingsView: View {
     }
 }
 
+#if DEBUG
 #Preview("Default Settings") {
-    SettingsView()
+    SettingsView(setupConfig: .preview)
 }
 
 #Preview("Admin Settings") {
-    SettingsView(isAdmin: true)
+    SettingsView(isAdmin: true, setupConfig: .preview)
 }
+#endif

@@ -7,19 +7,21 @@
 
 import SwiftUI
 import SwiftData
+import SocketIO
+import Supabase
 
 struct ContentView: View {
-    @State private var isSetupComplete: Bool = false
+    @State private var setupConfig: SetupConfig = .init()
     
     init() {
         UIScrollView.appearance().delaysContentTouches = false
     }
     
     var body: some View {
-        if isSetupComplete {
-            RootView()
+        if let completeConfig = setupConfig.complete {
+            RootView(setupConfig: completeConfig)
         } else {
-            SetupView(isSetupComplete: $isSetupComplete)
+            SetupView(setupConfig: $setupConfig)
         }
     }
 }
