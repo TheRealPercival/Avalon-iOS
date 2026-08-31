@@ -26,27 +26,7 @@ struct JoinView: View {
                     Spacer()
                     
                     VStack(spacing: 12) {
-                        AvalonButton(buttonTitle) {
-                            viewModel.requestToJoinSession(for: socket)
-                        } trailingView: {
-                            StackedProfilePictures {
-                                ForEach(viewModel.inSessionUsers.prefix(3)) { user in
-                                    AsyncImage(url: user.avatarURL) { content in
-                                        content.image?
-                                            .resizable()
-                                            .scaledToFit()
-                                    }
-                                }
-                            }
-                        }
-                        .navigationDestination(isPresented: $viewModel.isInSession) {
-                            GameView()
-                        }
-                        .onChange(of: viewModel.isInSession) {
-                            if !viewModel.isInSession {
-                                socket.emit(ClientEvent.leaveSession.rawValue)
-                            }
-                        }
+                        joinButton
                     }
                     
                     Spacer()
@@ -70,6 +50,36 @@ struct JoinView: View {
 }
 
 extension JoinView {
+    private var joinButton: some View {
+        AvalonButton(buttonTitle) {
+            viewModel.requestToJoinSession(for: socket)
+        } trailingView: {
+            StackedProfilePictures {
+                ForEach(viewModel.inSessionUsers.prefix(3)) { user in
+                    AsyncImage(url: user.avatarURL) { content in
+                        content.image?
+                            .resizable()
+                            .scaledToFit()
+                    }
+                }
+            }
+        }
+        .navigationDestination(isPresented: $viewModel.isOnGameScreen) {
+            GameView()
+        }
+        .onChange(of: viewModel.isOnGameScreen) {
+            if !viewModel.isOnGameScreen && viewModel.isInSession {
+                socket.emit(ClientEvent.leaveSession.rawValue)
+                viewModel.isInSession = false
+            }
+        }
+        .onChange(of: viewModel.isInSession) {
+            if viewModel.isOnGameScreen != viewModel.isInSession {
+                viewModel.isOnGameScreen = viewModel.isInSession
+            }
+        }
+    }
+    
     private var socket: SocketIOClient {
         setupConfig.socketManager.defaultSocket
     }

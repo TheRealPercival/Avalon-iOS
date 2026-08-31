@@ -12,13 +12,14 @@ import SocketIO
 class JoinViewModel {
     var inSessionUsers: [User] = .init()
     var isInSession: Bool = false
+    var isOnGameScreen: Bool = false
     
     private var hasFetchedInitialSessionList: Bool = false
     private var joinListenerId: UUID?
     private var leaveListenerId: UUID?
     
     func listenToSessionEvents(from socket: SocketIOClient) {
-        getSessionList(from: socket)
+        getSessionInfoIfNeeded(from: socket)
         listenToSessionJoins(from: socket)
         listenToSessionLeaves(from: socket)
     }
@@ -26,7 +27,7 @@ class JoinViewModel {
     func onServerStatusChange(for socket: SocketIOClient) {
         guard socket.status == .connected else { return }
         
-        fetchInitialSessionList(from: socket)
+        fetchSessionInfo(from: socket)
     }
     
     func requestToJoinSession(for socket: SocketIOClient) {
@@ -48,13 +49,13 @@ class JoinViewModel {
         }
     }
     
-    private func getSessionList(from socket: SocketIOClient) {
+    private func getSessionInfoIfNeeded(from socket: SocketIOClient) {
         guard !hasFetchedInitialSessionList, socket.status == .connected else { return }
          
-        fetchInitialSessionList(from: socket)
+        fetchSessionInfo(from: socket)
     }
     
-    private func fetchInitialSessionList(from socket: SocketIOClient) {
+    private func fetchSessionInfo(from socket: SocketIOClient) {
         socket.emitWithAck(ClientEvent.getSessionInfo.rawValue).timingOut(after: 5) { [weak self] args in
             guard let self else { return }
             
@@ -63,8 +64,9 @@ class JoinViewModel {
                 return
             }
             
-            if let users = args.decodeObject(ofType: [User].self) {
-                self.inSessionUsers = users
+            if let sessionInfo = args.decodeObject(ofType: SessionInfo.self) {
+                self.isInSession = sessionInfo.inSession
+                self.inSessionUsers = sessionInfo.users
                 self.hasFetchedInitialSessionList = true
             }
         }

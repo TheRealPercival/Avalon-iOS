@@ -12,3 +12,7 @@ struct GameView: View {
         Text("Game View")
     }
 }
+
+#Preview {
+    GameView()
+}
