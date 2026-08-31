@@ -11,6 +11,7 @@ import SocketIO
 @Observable
 class JoinViewModel {
     var inSessionUsers: [User] = .init()
+    var isInSession: Bool = false
     
     private var hasFetchedInitialSessionList: Bool = false
     private var joinListenerId: UUID?
@@ -28,6 +29,25 @@ class JoinViewModel {
         fetchInitialSessionList(from: socket)
     }
     
+    func requestToJoinSession(for socket: SocketIOClient) {
+        socket.emitWithAck(ClientEvent.joinSession.rawValue).timingOut(after: 5) { [weak self] args in
+            guard let self else { return }
+            
+            guard args.first as? String != SocketAckStatus.noAck.rawValue else {
+                // Show error probably
+                return
+            }
+            
+            guard let response = args.decodeObject(ofType: ActionSuccess.self) else { return }
+            
+            if response.success {
+                isInSession = true
+            } else {
+                // Show error probably
+            }
+        }
+    }
+    
     private func getSessionList(from socket: SocketIOClient) {
         guard !hasFetchedInitialSessionList, socket.status == .connected else { return }
          
@@ -35,7 +55,7 @@ class JoinViewModel {
     }
     
     private func fetchInitialSessionList(from socket: SocketIOClient) {
-        socket.emitWithAck(ClientEvent.getSessionInfo.rawValue).timingOut(after: 5.0) { [weak self] args in
+        socket.emitWithAck(ClientEvent.getSessionInfo.rawValue).timingOut(after: 5) { [weak self] args in
             guard let self else { return }
             
             guard args.first as? String != SocketAckStatus.noAck.rawValue else {

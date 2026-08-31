@@ -19,19 +19,21 @@ struct RootView: View {
     }
     
     var body: some View {
-        TabView(selection: $currentTab) {
-            Tab("Settings", systemImage: "gear", value: 0) {
-                SettingsView(
-                    isAdmin: true,
-                    setupConfig: setupConfig
-                )
+        NavigationStack {
+            TabView(selection: $currentTab) {
+                Tab("Settings", systemImage: "gear", value: 0) {
+                    SettingsView(
+                        isAdmin: true,
+                        setupConfig: setupConfig
+                    )
+                }
+                
+                Tab("Game", systemImage: "gamecontroller", value: 1) {
+                    JoinView(setupConfig: setupConfig)
+                }
             }
-            
-            Tab("Game", systemImage: "gamecontroller", value: 1) {
-                JoinView(setupConfig: setupConfig)
-            }
+            .tint(.blue1)
         }
-        .tint(.blue1)
     }
 }
 

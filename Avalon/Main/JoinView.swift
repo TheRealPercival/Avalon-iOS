@@ -27,8 +27,7 @@ struct JoinView: View {
                     
                     VStack(spacing: 12) {
                         AvalonButton(buttonTitle) {
-                            // Go to game screen
-                            setupConfig.socketManager.defaultSocket.emit(ClientEvent.joinSession.rawValue)
+                            viewModel.requestToJoinSession(for: socket)
                         } trailingView: {
                             StackedProfilePictures {
                                 ForEach(viewModel.inSessionUsers.prefix(3)) { user in
@@ -40,10 +39,13 @@ struct JoinView: View {
                                 }
                             }
                         }
-                        
-                        // For testing only, will be removed
-                        AvalonButton("Leave", isDestructive: true) {
-                            setupConfig.socketManager.defaultSocket.emit(ClientEvent.leaveSession.rawValue)
+                        .navigationDestination(isPresented: $viewModel.isInSession) {
+                            GameView()
+                        }
+                        .onChange(of: viewModel.isInSession) {
+                            if !viewModel.isInSession {
+                                socket.emit(ClientEvent.leaveSession.rawValue)
+                            }
                         }
                     }
                     
@@ -58,17 +60,21 @@ struct JoinView: View {
                     .ignoresSafeArea()
             }
             .onChange(of: setupConfig.serverStatus) {
-                viewModel.onServerStatusChange(for: setupConfig.socketManager.defaultSocket)
+                viewModel.onServerStatusChange(for: socket)
             }
             .onAppear {
-                viewModel.listenToSessionEvents(from: setupConfig.socketManager.defaultSocket)
+                viewModel.listenToSessionEvents(from: socket)
             }
         }
     }
 }
 
 extension JoinView {
-    var buttonTitle: String {
+    private var socket: SocketIOClient {
+        setupConfig.socketManager.defaultSocket
+    }
+    
+    private var buttonTitle: String {
         guard !viewModel.inSessionUsers.isEmpty else {
             return "Start Game"
         }
