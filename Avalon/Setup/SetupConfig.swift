@@ -86,7 +86,6 @@ class SetupConfig {
             ]
         }
         
-        print("BLK: setupConfig.connectToServer()")
         socketManager.defaultSocket.connect(withPayload: payload)
     }
     
