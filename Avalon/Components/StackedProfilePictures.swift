@@ -23,7 +23,8 @@ struct StackedProfilePictures<Content: View>: View {
     var body: some View {
         HStack(spacing: -imageWidth / 2) {
             Group(subviews: profilePicturesView()) { profilePictures in
-                ForEach(Array(profilePictures.enumerated()), id: \.offset) { index, profilePicture in
+                let array = Array(profilePictures.enumerated())
+                ForEach(array, id: \.offset) { index, profilePicture in
                     profilePicture
                         .frame(width: imageWidth, height: imageWidth)
                         .clipShape(.circle)
@@ -38,6 +39,10 @@ struct StackedProfilePictures<Content: View>: View {
                                     }
                                 }
                         }
+                }
+                
+                if array.isEmpty {
+                    Color.clear.frame(width: imageWidth, height: imageWidth)
                 }
             }
         }

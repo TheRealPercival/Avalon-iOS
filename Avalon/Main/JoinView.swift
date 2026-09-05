@@ -6,12 +6,15 @@
 //
 
 import SwiftUI
+import SocketIO
 
 struct JoinView: View {
-    private let joinType: JoinType
+    @State private var viewModel: JoinViewModel = .init()
     
-    init(joinType: JoinType = .joinGame) {
-        self.joinType = joinType
+    private let setupConfig: SetupConfig.CompleteConfig
+    
+    init(setupConfig: SetupConfig.CompleteConfig) {
+        self.setupConfig = setupConfig
     }
     
     var body: some View {
@@ -22,14 +25,8 @@ struct JoinView: View {
                     
                     Spacer()
                     
-                    AvalonButton(joinType.message) {
-                        // Go to game screen
-                    } trailingView: {
-                        StackedProfilePictures {
-                            Color.red1
-                            Color.green1
-                            Color.blue2
-                        }
+                    VStack(spacing: 12) {
+                        joinButton
                     }
                     
                     Spacer()
@@ -42,34 +39,54 @@ struct JoinView: View {
                 Color.fullBackground
                     .ignoresSafeArea()
             }
-        }
-    }
-}
-    
-extension JoinView {
-    enum JoinType {
-        case joinGame
-        case spectateGame
-        case spectateLobby
-        
-        var message: String {
-            switch self {
-            case .joinGame: "Join Game (5 in lobby)"
-            case .spectateGame: "Spectate (5 in game)"
-            case .spectateLobby: "Spectate (lobby full)"
+            .onChange(of: setupConfig.serverStatus) {
+                viewModel.onServerStatusChange(for: socket)
+            }
+            .onAppear {
+                viewModel.listenToSessionEvents(from: socket)
             }
         }
     }
 }
 
-#Preview("Join Game") {
-    JoinView(joinType: .joinGame)
+extension JoinView {
+    private var joinButton: some View {
+        AvalonButton(buttonTitle) {
+            viewModel.requestToJoinSession(for: socket)
+        } trailingView: {
+            StackedProfilePictures {
+                ForEach(viewModel.inSessionUsers.prefix(3)) { user in
+                    AsyncImage(url: user.avatarURL) { content in
+                        content.image?
+                            .resizable()
+                            .scaledToFit()
+                    }
+                }
+            }
+        }
+        .disabled(setupConfig.serverStatus != .connected)
+        .navigationDestination(isPresented: $viewModel.isOnGameScreen) {
+            GameView(setupConfig: setupConfig)
+        }
+        .onChange(of: viewModel.isInSession, viewModel.handleSessionStatusChange)
+        .onChange(of: viewModel.isOnGameScreen) {
+            viewModel.handleGameNavigationChange(for: socket)
+        }
+    }
+    
+    private var socket: SocketIOClient {
+        setupConfig.socketManager.defaultSocket
+    }
+    
+    private var buttonTitle: String {
+        guard !viewModel.inSessionUsers.isEmpty else {
+            return "Start Game"
+        }
+        
+        return "Join Game (\(viewModel.inSessionUsers.count) in lobby)"
+    }
 }
 
-#Preview("Spectate Game") {
-    JoinView(joinType: .spectateGame)
-}
-
-#Preview("Spectate Lobby") {
-    JoinView(joinType: .spectateLobby)
+#Preview {
+    JoinView(setupConfig: .preview)
 }

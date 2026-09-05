@@ -70,7 +70,7 @@ class SetupViewModel {
         )
         
         guard let session else {
-            print("Error: Auth session failed")
+            // Display error
             return
         }
         
