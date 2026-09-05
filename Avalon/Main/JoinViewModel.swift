@@ -119,16 +119,3 @@ class JoinViewModel {
         self.leaveListenerId = leaveListenerId
     }
 }
-
-fileprivate extension [Any] {
-    func decodeObject<T: Decodable>(ofType type: T.Type) -> T? {
-        guard let arg = first,
-              let data = try? JSONSerialization.data(withJSONObject: arg),
-              let object = try? JSONDecoder().decode(type.self, from: data)
-        else {
-            return nil
-        }
-        
-        return object
-    }
-}

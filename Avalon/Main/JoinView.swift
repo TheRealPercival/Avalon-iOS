@@ -65,7 +65,7 @@ extension JoinView {
             }
         }
         .navigationDestination(isPresented: $viewModel.isOnGameScreen) {
-            GameView()
+            GameView(setupConfig: setupConfig)
         }
         .onChange(of: viewModel.isInSession, viewModel.handleSessionStatusChange)
         .onChange(of: viewModel.isOnGameScreen) {
