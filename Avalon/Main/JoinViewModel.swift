@@ -49,6 +49,19 @@ class JoinViewModel {
         }
     }
     
+    func handleGameNavigationChange(for socket: SocketIOClient) -> Void {
+        if !isOnGameScreen && isInSession {
+            socket.emit(ClientEvent.leaveSession.rawValue)
+            isInSession = false
+        }
+    }
+    
+    func handleSessionStatusChange() -> Void {
+        if isOnGameScreen != isInSession {
+            isOnGameScreen = isInSession
+        }
+    }
+    
     private func getSessionInfoIfNeeded(from socket: SocketIOClient) {
         guard !hasFetchedInitialSessionList, socket.status == .connected else { return }
          

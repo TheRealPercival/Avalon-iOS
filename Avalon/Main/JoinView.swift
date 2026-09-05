@@ -67,16 +67,9 @@ extension JoinView {
         .navigationDestination(isPresented: $viewModel.isOnGameScreen) {
             GameView()
         }
+        .onChange(of: viewModel.isInSession, viewModel.handleSessionStatusChange)
         .onChange(of: viewModel.isOnGameScreen) {
-            if !viewModel.isOnGameScreen && viewModel.isInSession {
-                socket.emit(ClientEvent.leaveSession.rawValue)
-                viewModel.isInSession = false
-            }
-        }
-        .onChange(of: viewModel.isInSession) {
-            if viewModel.isOnGameScreen != viewModel.isInSession {
-                viewModel.isOnGameScreen = viewModel.isInSession
-            }
+            viewModel.handleGameNavigationChange(for: socket)
         }
     }
     
