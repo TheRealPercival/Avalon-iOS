@@ -97,8 +97,7 @@ struct SetupView: View {
             AvalonButton(viewModel.connectButtonText(for: setupConfig.serverStatus)) {
                 viewModel.connectToServer(setupConfig: setupConfig)
             }
-            .disabled(setupConfig.serverStatus.active)
-            .opacity(setupConfig.serverStatus.active ? 0.35 : 1)
+            .disabled(setupConfig.serverStatus.active || viewModel.serverURLString.isEmpty)
         }
     }
     

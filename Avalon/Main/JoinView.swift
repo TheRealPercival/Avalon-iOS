@@ -64,6 +64,7 @@ extension JoinView {
                 }
             }
         }
+        .disabled(setupConfig.serverStatus != .connected)
         .navigationDestination(isPresented: $viewModel.isOnGameScreen) {
             GameView(setupConfig: setupConfig)
         }

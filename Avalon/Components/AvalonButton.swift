@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct AvalonButton<Content: View>: View {
+    @Environment(\.isEnabled) private var isEnabled
+    
     private let label: String
     private let isDestructive: Bool
     private let action: () -> Void
@@ -43,13 +45,20 @@ struct AvalonButton<Content: View>: View {
             .frame(maxWidth: .infinity)
             .background(isDestructive ? .red2 : .blue1)
             .clipShape(RoundedRectangle(cornerRadius: 10))
+            .opacity(isEnabled ? 1 : 0.6)
+            .saturation(isEnabled ? 1 : 0.8)
         }
     }
 }
 
 #Preview {
     AvalonButton("Start") {}
+    
+    AvalonButton("Disabled") {}
+        .disabled(true)
+    
     AvalonButton("Delete", isDestructive: true) {}
+    
     AvalonButton("Join Game (5 in lobby)") {} trailingView: {
         StackedProfilePictures {
             Color.red1
