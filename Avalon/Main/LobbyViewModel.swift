@@ -1,5 +1,5 @@
 //
-//  GameViewModel.swift
+//  LobbyViewModel.swift
 //  Avalon
 //
 //  Created by Ben Key on 9/5/26.
@@ -9,7 +9,7 @@ import SwiftUI
 import SocketIO
 
 @Observable
-class GameViewModel {
+class LobbyViewModel {
     var isRequestingToLeave: Bool = false
     
     func requestToLeaveSession(for socket: SocketIOClient, onSuccess: @escaping () -> Void) {
