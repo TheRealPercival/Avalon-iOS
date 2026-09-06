@@ -21,7 +21,10 @@ struct LobbyView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 16) {
-                Text("Lobby View")
+                AvalonSection("Preset") {}
+                AvalonSection("Roles") {}
+                AvalonSection("Settings") {}
+                AvalonSection("Players") {}
             }
             .padding(16)
             .frame(maxWidth: .infinity)

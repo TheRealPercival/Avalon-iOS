@@ -46,7 +46,7 @@ struct SettingsView: View {
                     adminSettingsView
                 }
                 
-                makeSection(title: "Server") {
+                AvalonSection("Server") {
                     HStack {
                         Text(setupConfig.socketManager.socketURL.hostString)
                             .foregroundStyle(.primaryText)
@@ -79,7 +79,7 @@ struct SettingsView: View {
                     }
                 }
                 
-                makeSection(title: "Account") {
+                AvalonSection("Account") {
                     HStack {
                         Text("Ben (hardcoded)")
                             .foregroundStyle(.primaryText)
@@ -126,7 +126,7 @@ struct SettingsView: View {
     
     @ViewBuilder
     private var adminSettingsView: some View {
-        makeSection(title: "Requests") {
+        AvalonSection("Requests") {
             makeUserRow(color: .red1, primaryText: "@ben.json", canAccept: true)
             makeUserRow(color: .green1, primaryText: "@65472624657", canAccept: true)
             makeUserRow(color: .blue1, primaryText: "@_shoe_", canAccept: true)
@@ -159,7 +159,7 @@ struct SettingsView: View {
         }
 
 
-        makeSection(title: "Accepted") {
+        AvalonSection("Accepted") {
             makeUserRow(color: .red1, primaryText: "Ben", secondaryText: "@ben.json")
             makeUserRow(color: .green1, primaryText: "Drew", secondaryText: "@65472624657")
             makeUserRow(color: .blue1, primaryText: "Thomas", secondaryText: "@_shoe_")
@@ -171,17 +171,6 @@ struct SettingsView: View {
         return Image(systemName: isConnected ? "checkmark" : "xmark")
             .foregroundStyle(isConnected ? .green2 : .red1)
             .font(.livvic)
-    }
-    
-    private func makeSection(title: String, @ViewBuilder content: () -> some View) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(title)
-                .foregroundStyle(.secondaryText)
-                .font(.livvic(size: .note))
-            
-            content()
-        }
-        .frame(maxWidth: .infinity)
     }
     
     private func makeUserRow(
