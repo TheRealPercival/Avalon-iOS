@@ -19,13 +19,15 @@ struct GameView: View {
     }
     
     var body: some View {
-        Text("Game View")
-            .navigationBarBackButtonHidden()
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    backButton
-                }
+        Group {
+            LobbyView()
+        }
+        .navigationBarBackButtonHidden()
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                backButton
             }
+        }
     }
 }
 
