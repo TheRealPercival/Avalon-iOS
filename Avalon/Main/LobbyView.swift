@@ -10,6 +10,10 @@ import SocketIO
 
 struct LobbyView: View {
     @Environment(\.dismiss) private var dismiss
+    
+    @ScaledMetric private var minCellWidth = 60
+    @ScaledMetric private var maxCellWidth = 80
+    
     @State private var viewModel: LobbyViewModel = .init()
     
     private let setupConfig: SetupConfig.CompleteConfig
@@ -158,7 +162,13 @@ extension LobbyView {
     }
     
     private func makeGrid(with content: () -> some View) -> some View {
-        LazyVGrid(columns: [.init(.adaptive(minimum: 60, maximum: 80))], content: content)
+        LazyVGrid(
+            columns: [.init(.adaptive(
+                minimum: minCellWidth,
+                maximum: maxCellWidth
+            ))],
+            content: content
+        )
     }
     
     private func makeToggleButton(rule: Binding<Bool>, icon: () -> some View) -> some View {
