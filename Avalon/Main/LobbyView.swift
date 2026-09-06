@@ -21,7 +21,7 @@ struct LobbyView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 16) {
-                AvalonSection("Preset") {}
+                presetSection
                 AvalonSection("Roles") {}
                 AvalonSection("Settings") {}
                 AvalonSection("Players") {}
@@ -49,10 +49,37 @@ struct LobbyView: View {
 }
 
 extension LobbyView {
+    private var presetSection: some View {
+        AvalonSection("Preset") {
+            Menu {
+                Picker("Preset", selection: $viewModel.selectedPreset) {
+                    ForEach(LobbyViewModel.mockPresets, id: \.self) { preset in
+                        Text(preset)
+                    }
+                }
+            } label: {
+                HStack {
+                    Text(viewModel.selectedPreset)
+                    Spacer()
+                    Image(systemName: "chevron.up.chevron.down")
+                }
+                .foregroundStyle(.primaryText)
+                .font(.livvic)
+                .padding(12)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            .overlay {
+                RoundedRectangle(cornerRadius: 10)
+                    .strokeBorder(.tertiaryText)
+            }
+        }
+    }
+    
     private var backButton: some View {
         Button("Back", systemImage: "chevron.left") {
             viewModel.isRequestingToLeave = true
         }
+        .tint(.primaryText)
         .confirmationDialog(
             "Are you sure?",
             isPresented: $viewModel.isRequestingToLeave,

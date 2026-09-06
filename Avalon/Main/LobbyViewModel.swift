@@ -10,7 +10,12 @@ import SocketIO
 
 @Observable
 class LobbyViewModel {
+    var selectedPreset: String
     var isRequestingToLeave: Bool = false
+    
+    init() {
+        self.selectedPreset = Self.mockPresets.first ?? "Classic"
+    }
     
     func requestToLeaveSession(for socket: SocketIOClient, onSuccess: @escaping () -> Void) {
         socket.emitWithAck(ClientEvent.leaveSession.rawValue).timingOut(after: 5) { [weak self] args in
@@ -30,4 +35,13 @@ class LobbyViewModel {
             }
         }
     }
+}
+
+extension LobbyViewModel {
+    static let mockPresets: [String] = [
+        "Classic",
+        "Basic",
+        "Fancy",
+        "Random"
+    ]
 }
