@@ -29,6 +29,12 @@ struct LobbyView: View {
             .padding(16)
             .frame(maxWidth: .infinity)
         }
+        .safeAreaInset(edge: .bottom) {
+            AvalonButton("Start") {
+                // Request reveal stage
+            }
+            .padding(.horizontal, 16)
+        }
         .scrollBounceBehavior(.basedOnSize)
         .navigationBarBackButtonHidden()
         .background {
