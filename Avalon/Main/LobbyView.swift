@@ -22,7 +22,7 @@ struct LobbyView: View {
         ScrollView {
             VStack(spacing: 16) {
                 presetSection
-                AvalonSection("Roles") {}
+                rolesSection
                 AvalonSection("Settings") {}
                 AvalonSection("Players") {}
             }
@@ -73,6 +73,22 @@ extension LobbyView {
                     .strokeBorder(.tertiaryText)
             }
         }
+    }
+    
+    private var rolesSection: some View {
+        AvalonSection("Roles") {
+            makeGrid {
+                ForEach(LobbyViewModel.mockGridColors, id: \.self) { color in
+                    Color(color)
+                        .aspectRatio(contentMode: .fill)
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                }
+            }
+        }
+    }
+    
+    private func makeGrid(with content: () -> some View) -> some View {
+        LazyVGrid(columns: [.init(.adaptive(minimum: 60, maximum: 80))], content: content)
     }
     
     private var backButton: some View {

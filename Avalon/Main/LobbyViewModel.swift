@@ -44,4 +44,17 @@ extension LobbyViewModel {
         "Fancy",
         "Random"
     ]
+    
+    static let mockGridColors: [UIColor] = [
+        .red1,
+        .yellow,
+        .green1,
+        .blue1,
+        .magenta,
+        .red3,
+        .green3,
+        .blue3,
+        .black,
+        .white
+    ]
 }
