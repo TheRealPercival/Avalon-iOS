@@ -24,7 +24,7 @@ struct LobbyView: View {
                 presetSection
                 rolesSection
                 settingsSection
-                AvalonSection("Players") {}
+                playersSection
             }
             .padding(16)
             .frame(maxWidth: .infinity)
@@ -114,6 +114,37 @@ extension LobbyView {
                                     .font(.livvic(size: 20, weight: .regular))
                                     .offset(y: 1)
                             }
+                    }
+                }
+            }
+        }
+    }
+    
+    private var playersSection: some View {
+        AvalonSection("Players") {
+            makeGrid {
+                ForEach(LobbyViewModel.mockGridColors, id: \.self) { color in
+                    VStack(spacing: 4) {
+                        Color(color)
+                            .aspectRatio(contentMode: .fill)
+                            .clipShape(.circle)
+                        
+                        VStack {
+                            Text(" ")
+                                .foregroundStyle(.clear)
+                                .font(.livvic(size: .note))
+                                .lineLimit(1)
+                                .accessibilityHidden(true)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .overlay {
+                            Text(color.accessibilityName.capitalized)
+                                .foregroundStyle(.secondaryText)
+                                .font(.livvic(size: .note))
+                                .lineLimit(1)
+                                .truncationMode(.middle)
+                                .minimumScaleFactor(0.5)
+                        }
                     }
                 }
             }
