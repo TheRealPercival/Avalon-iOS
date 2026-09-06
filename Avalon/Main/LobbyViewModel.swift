@@ -11,6 +11,11 @@ import SocketIO
 @Observable
 class LobbyViewModel {
     var selectedPreset: String
+    
+    var isTrapperEnabled: Bool = false
+    var isLadyEnabled: Bool = false
+    var isFailResetEnabled: Bool = false
+    
     var isRequestingToLeave: Bool = false
     
     init() {

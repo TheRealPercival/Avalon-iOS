@@ -23,7 +23,7 @@ struct LobbyView: View {
             VStack(spacing: 16) {
                 presetSection
                 rolesSection
-                AvalonSection("Settings") {}
+                settingsSection
                 AvalonSection("Players") {}
             }
             .padding(16)
@@ -87,8 +87,53 @@ extension LobbyView {
         }
     }
     
+    private var settingsSection: some View {
+        AvalonSection("Settings") {
+            makeGrid {
+                Group {
+                    makeToggleButton(rule: $viewModel.isTrapperEnabled) {
+                        Image(systemName: "lock.fill")
+                            .foregroundStyle(.white1)
+                            .font(.livvic(size: .heading, weight: .regular))
+                    }
+                    
+                    makeToggleButton(rule: $viewModel.isLadyEnabled) {
+                        Image(systemName: "figure.stand.dress")
+                            .foregroundStyle(.white1)
+                            .font(.livvic(size: .heading, weight: .regular))
+                    }
+                    
+                    makeToggleButton(rule: $viewModel.isFailResetEnabled) {
+                        Image(systemName: "arrow.circlepath")
+                            .foregroundStyle(.white1)
+                            .rotationEffect(.degrees(90))
+                            .font(.livvic(size: .heading, weight: .regular))
+                            .overlay {
+                                Image(systemName: "hand.thumbsdown.fill")
+                                    .foregroundStyle(.white1)
+                                    .font(.livvic(size: 20, weight: .regular))
+                                    .offset(y: 1)
+                            }
+                    }
+                }
+            }
+        }
+    }
+    
     private func makeGrid(with content: () -> some View) -> some View {
         LazyVGrid(columns: [.init(.adaptive(minimum: 60, maximum: 80))], content: content)
+    }
+    
+    private func makeToggleButton(rule: Binding<Bool>, icon: () -> some View) -> some View {
+        Button {
+            rule.wrappedValue.toggle()
+        } label: {
+            Color(rule.wrappedValue ? .blue1 : .gray3)
+                .animation(.none)
+                .aspectRatio(contentMode: .fill)
+                .clipShape(RoundedRectangle(cornerRadius: 10))
+                .overlay(content: icon)
+        }
     }
     
     private var backButton: some View {
