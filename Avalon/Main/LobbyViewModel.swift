@@ -12,6 +12,8 @@ import SocketIO
 class LobbyViewModel {
     var selectedPreset: String
     
+    var isEditRolesOpen: Bool = false
+    
     var isTrapperEnabled: Bool = false
     var isLadyEnabled: Bool = false
     var isFailResetEnabled: Bool = false

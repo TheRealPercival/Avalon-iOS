@@ -12,6 +12,7 @@ struct LobbyView: View {
     @Environment(\.dismiss) private var dismiss
     
     @ScaledMetric private var listIconWidth = 32
+    @ScaledMetric private var minSmallCellWidth = 50
     @ScaledMetric private var minCellWidth = 60
     @ScaledMetric private var maxCellWidth = 80
     
@@ -96,6 +97,89 @@ extension LobbyView {
                 }
             }
         }
+        .onTapGesture {
+            viewModel.isEditRolesOpen = true
+        }
+        .sheet(isPresented: $viewModel.isEditRolesOpen) {
+            editRolesList
+        }
+    }
+    
+    private var editRolesList: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                Text("Edit Roles")
+                    .font(.livvic(size: .subheading))
+                
+                AvalonSection("Good Team") {
+                    let goodRoles = LobbyViewModel.mockGridColors.prefix(6)
+                    
+                    makeGrid(isSmall: true) {
+                        ForEach(goodRoles, id: \.self) { color in
+                            Color(color)
+                                .aspectRatio(contentMode: .fill)
+                                .clipShape(RoundedRectangle(cornerRadius: 10))
+                        }
+                    }
+                    
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack {
+                            ForEach(goodRoles, id: \.self) { color in
+                                Color(color)
+                                    .aspectRatio(1 / 1.4, contentMode: .fill)
+                                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                                    .frame(maxWidth: .infinity)
+                            }
+                        }
+                        .frame(height: 190)
+                        .padding(.horizontal, 16)
+                    }
+                    .padding(.horizontal, -16)
+                }
+                
+                AvalonSection("Evil Team") {
+                    let evilRoles = LobbyViewModel.mockGridColors.suffix(4)
+                    
+                    makeGrid(isSmall: true) {
+                        ForEach(evilRoles, id: \.self) { color in
+                            Color(color)
+                                .aspectRatio(contentMode: .fill)
+                                .clipShape(RoundedRectangle(cornerRadius: 10))
+                        }
+                    }
+                    
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack {
+                            ForEach(evilRoles, id: \.self) { color in
+                                Color(color)
+                                    .aspectRatio(1 / 1.4, contentMode: .fill)
+                                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                                    .frame(maxWidth: .infinity)
+                            }
+                        }
+                        .frame(height: 190)
+                        .padding(.horizontal, 16)
+                    }
+                    .padding(.horizontal, -16)
+                }
+                
+                Spacer()
+            }
+            .padding(16)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+        }
+        .scrollBounceBehavior(.basedOnSize)
+        .safeAreaInset(edge: .bottom) {
+            AvalonButton("Save") {
+                // Save role choices
+                viewModel.isEditRolesOpen = false
+            }
+            .padding(.horizontal, 16)
+        }
+        .background {
+            Color.fullBackground
+                .ignoresSafeArea()
+        }
     }
     
     private var settingsSection: some View {
@@ -172,7 +256,6 @@ extension LobbyView {
         } content: {
             playersList
         }
-
     }
     
     private var playersList: some View {
@@ -224,7 +307,6 @@ extension LobbyView {
                     }
                 }
                 
-                
                 Spacer()
             }
             .padding(16)
@@ -251,10 +333,10 @@ extension LobbyView {
         }
     }
     
-    private func makeGrid(with content: () -> some View) -> some View {
+    private func makeGrid(isSmall: Bool = false, with content: () -> some View) -> some View {
         LazyVGrid(
             columns: [.init(.adaptive(
-                minimum: minCellWidth,
+                minimum: isSmall ? minSmallCellWidth : minCellWidth,
                 maximum: maxCellWidth
             ))],
             content: content
