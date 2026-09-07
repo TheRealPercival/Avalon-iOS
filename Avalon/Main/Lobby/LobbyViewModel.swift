@@ -12,21 +12,18 @@ import SocketIO
 class LobbyViewModel {
     var selectedPreset: String
     
-    var selectedAssassin: String
     var isEditRolesOpen: Bool = false
     
     var isTrapperEnabled: Bool = false
     var isLadyEnabled: Bool = false
     var isFailResetEnabled: Bool = false
     
-    var selectedPlayer: UIColor?
     var isPlayerListOpen: Bool = false
     
     var isRequestingToLeave: Bool = false
     
     init() {
         self.selectedPreset = Self.mockPresets.first ?? "Classic"
-        self.selectedAssassin = Self.mockAssassinRoles.first ?? "Morgana"
     }
     
     func requestToLeaveSession(for socket: SocketIOClient, onSuccess: @escaping () -> Void) {
