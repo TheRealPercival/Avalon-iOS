@@ -11,6 +11,7 @@ import SocketIO
 struct LobbyView: View {
     @Environment(\.dismiss) private var dismiss
     
+    @ScaledMetric private var listIconWidth = 32
     @ScaledMetric private var minCellWidth = 60
     @ScaledMetric private var maxCellWidth = 80
     
@@ -156,8 +157,97 @@ extension LobbyView {
                                 .minimumScaleFactor(0.5)
                         }
                     }
+                    .onTapGesture {
+                        viewModel.selectedPlayer = color
+                        viewModel.isPlayerListOpen = true
+                    }
                 }
             }
+        }
+        .onTapGesture {
+            viewModel.isPlayerListOpen = true
+        }
+        .sheet(isPresented: $viewModel.isPlayerListOpen) {
+            viewModel.selectedPlayer = nil
+        } content: {
+            playersList
+        }
+
+    }
+    
+    private var playersList: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                Text("Joined Players")
+                    .font(.livvic(size: .subheading))
+                
+                ForEach(LobbyViewModel.mockGridColors, id: \.self) { color in
+                    let isSelected = viewModel.selectedPlayer == color
+                    let rowShape = RoundedRectangle(cornerRadius: 10)
+                    
+                    HStack {
+                        Color(color)
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: listIconWidth)
+                            .clipShape(.circle)
+                        
+                        Text(color.accessibilityName.capitalized)
+                            .foregroundStyle(isSelected ? .white1 : .primaryText)
+                            .font(.livvic)
+                        
+                        Spacer()
+                        
+                        if color == LobbyViewModel.mockGridColors.first {
+                            Text("(you)")
+                                .foregroundStyle(isSelected ? .white1 : .tertiaryText)
+                                .font(.livvic(size: .note))
+                        }
+                    }
+                    .padding(12)
+                    .contentShape(rowShape)
+                    .background {
+                        rowShape
+                            .fill(isSelected ? .blue1 : .clear)
+                    }
+                    .overlay {
+                        if !isSelected {
+                            rowShape
+                                .strokeBorder(.tertiaryText)
+                        }
+                    }
+                    .onTapGesture {
+                        if isSelected {
+                            viewModel.selectedPlayer = nil
+                        } else {
+                            viewModel.selectedPlayer = color
+                        }
+                    }
+                }
+                
+                
+                Spacer()
+            }
+            .padding(16)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+        }
+        .scrollBounceBehavior(.basedOnSize)
+        .safeAreaInset(edge: .bottom) {
+            if viewModel.selectedPlayer != nil {
+                HStack(spacing: 16) {
+                    AvalonButton("Make Host") {
+                        // Request reveal stage
+                    }
+                    
+                    AvalonButton("Kick", isDestructive: true) {
+                        // Request reveal stage
+                    }
+                }
+                .padding(.horizontal, 16)
+            }
+        }
+        .background {
+            Color.fullBackground
+                .ignoresSafeArea()
         }
     }
     
@@ -175,7 +265,7 @@ extension LobbyView {
         Button {
             rule.wrappedValue.toggle()
         } label: {
-            Color(rule.wrappedValue ? .blue1 : .gray3)
+            Color(rule.wrappedValue ? .blue1 : .subtleText)
                 .animation(.none)
                 .aspectRatio(contentMode: .fill)
                 .clipShape(RoundedRectangle(cornerRadius: 10))

@@ -16,6 +16,9 @@ class LobbyViewModel {
     var isLadyEnabled: Bool = false
     var isFailResetEnabled: Bool = false
     
+    var selectedPlayer: UIColor?
+    var isPlayerListOpen: Bool = false
+    
     var isRequestingToLeave: Bool = false
     
     init() {
