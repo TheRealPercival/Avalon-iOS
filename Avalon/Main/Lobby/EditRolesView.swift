@@ -69,6 +69,7 @@ struct EditRolesView: View {
                                 .clipShape(RoundedRectangle(cornerRadius: 10))
                                 .matchedGeometryEffect(id: focusedCard, in: viewSpace)
                                 .transition(.scale(scale: 1.0))
+                                .dragRotation3D()
                         }
                         .padding(32)
                     }
