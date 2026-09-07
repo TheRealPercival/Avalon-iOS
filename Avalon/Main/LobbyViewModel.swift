@@ -12,6 +12,7 @@ import SocketIO
 class LobbyViewModel {
     var selectedPreset: String
     
+    var selectedAssassin: String
     var isEditRolesOpen: Bool = false
     
     var isTrapperEnabled: Bool = false
@@ -25,6 +26,7 @@ class LobbyViewModel {
     
     init() {
         self.selectedPreset = Self.mockPresets.first ?? "Classic"
+        self.selectedAssassin = Self.mockAssassinRoles.first ?? "Morgana"
     }
     
     func requestToLeaveSession(for socket: SocketIOClient, onSuccess: @escaping () -> Void) {
@@ -66,5 +68,11 @@ extension LobbyViewModel {
         .blue3,
         .black,
         .white
+    ]
+    
+    static let mockAssassinRoles: [String] = [
+        "Morgana",
+        "Mordred",
+        "Assassin"
     ]
 }

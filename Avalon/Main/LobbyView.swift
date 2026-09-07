@@ -63,27 +63,11 @@ struct LobbyView: View {
 extension LobbyView {
     private var presetSection: some View {
         AvalonSection("Preset") {
-            Menu {
-                Picker("Preset", selection: $viewModel.selectedPreset) {
-                    ForEach(LobbyViewModel.mockPresets, id: \.self) { preset in
-                        Text(preset)
-                    }
-                }
-            } label: {
-                HStack {
-                    Text(viewModel.selectedPreset)
-                    Spacer()
-                    Image(systemName: "chevron.up.chevron.down")
-                }
-                .foregroundStyle(.primaryText)
-                .font(.livvic)
-                .padding(12)
-                .frame(maxWidth: .infinity, alignment: .leading)
-            }
-            .overlay {
-                RoundedRectangle(cornerRadius: 10)
-                    .strokeBorder(.tertiaryText)
-            }
+            AvalonMenu(
+                selection: $viewModel.selectedPreset,
+                options: LobbyViewModel.mockPresets,
+                label: { $0 }
+            )
         }
     }
     
@@ -161,6 +145,14 @@ extension LobbyView {
                         .padding(.horizontal, 16)
                     }
                     .padding(.horizontal, -16)
+                }
+                
+                AvalonSection("Assassin") {
+                    AvalonMenu(
+                        selection: $viewModel.selectedAssassin,
+                        options: LobbyViewModel.mockAssassinRoles,
+                        label: { $0 }
+                    )
                 }
                 
                 Spacer()
