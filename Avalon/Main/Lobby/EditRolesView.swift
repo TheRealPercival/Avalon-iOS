@@ -10,10 +10,13 @@ import SwiftUI
 struct EditRolesView: View {
     @Environment(\.dismiss) private var dismiss
     
+    @Namespace private var viewSpace
+    
     @ScaledMetric private var minCellWidth = 50
     @ScaledMetric private var maxCellWidth = 80
     
     @State private var selectedAssassin: String
+    @State private var focusedCard: UIColor?
     
     init() {
         selectedAssassin = LobbyViewModel.mockAssassinRoles.first ?? "Morgana"
@@ -54,10 +57,37 @@ struct EditRolesView: View {
             Color.fullBackground
                 .ignoresSafeArea()
         }
+        .overlay {
+            if let focusedCard {
+                Color.black
+                    .ignoresSafeArea()
+                    .opacity(0.5)
+                    .overlay {
+                        VStack {
+                            Color(focusedCard)
+                                .aspectRatio(1 / 1.4, contentMode: .fit)
+                                .clipShape(RoundedRectangle(cornerRadius: 10))
+                                .matchedGeometryEffect(id: focusedCard, in: viewSpace)
+                                .transition(.scale(scale: 1.0))
+                        }
+                        .padding(32)
+                    }
+                    .onTapGesture {
+                        withAnimation(Self.cardAnimation) {
+                            self.focusedCard = .none
+                        }
+                    }
+            }
+        }
     }
 }
 
 extension EditRolesView {
+    private static let cardAnimation: Animation = .spring(
+        duration: 0.2,
+        blendDuration: 2
+    )
+    
     private func makeTeamSection(_ title: String, roles: Array<UIColor>.SubSequence) -> some View {
         AvalonSection(title) {
             makeGrid {
@@ -75,6 +105,13 @@ extension EditRolesView {
                             .aspectRatio(1 / 1.4, contentMode: .fill)
                             .clipShape(RoundedRectangle(cornerRadius: 10))
                             .frame(maxWidth: .infinity)
+                            .matchedGeometryEffect(id: color, in: viewSpace)
+                            .transition(.scale(scale: 1.0))
+                            .onLongPressGesture {
+                                withAnimation(Self.cardAnimation) {
+                                    focusedCard = color
+                                }
+                            }
                     }
                 }
                 .frame(height: 190)
