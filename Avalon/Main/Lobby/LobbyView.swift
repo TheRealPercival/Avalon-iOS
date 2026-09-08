@@ -72,9 +72,10 @@ extension LobbyView {
     private var rolesSection: some View {
         AvalonSection("Roles") {
             makeGrid {
-                ForEach(LobbyViewModel.mockGridColors, id: \.self) { color in
-                    Color(color)
-                        .aspectRatio(contentMode: .fill)
+                ForEach(LobbyViewModel.mockRoles) { role in
+                    Image(uiImage: role.iconImage)
+                        .resizable()
+                        .scaledToFit()
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                 }
             }

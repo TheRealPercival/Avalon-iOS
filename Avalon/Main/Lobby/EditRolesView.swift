@@ -16,7 +16,7 @@ struct EditRolesView: View {
     @ScaledMetric private var maxCellWidth = 80
     
     @State private var selectedAssassin: String
-    @State private var focusedCard: UIColor?
+    @State private var focusedRole: MockRole?
     
     init() {
         selectedAssassin = LobbyViewModel.mockAssassinRoles.first ?? "Morgana"
@@ -28,9 +28,9 @@ struct EditRolesView: View {
                 Text("Edit Roles")
                     .font(.livvic(size: .subheading))
                 
-                makeTeamSection("Good Team", roles: LobbyViewModel.mockGridColors.prefix(6))
+                makeTeamSection("Good Team", roles: LobbyViewModel.mockGoodRoles)
                 
-                makeTeamSection("Evil Team", roles: LobbyViewModel.mockGridColors.suffix(4))
+                makeTeamSection("Evil Team", roles: LobbyViewModel.mockEvilRoles)
                 
                 AvalonSection("Assassin") {
                     AvalonMenu(
@@ -58,16 +58,16 @@ struct EditRolesView: View {
                 .ignoresSafeArea()
         }
         .overlay {
-            if let focusedCard {
+            if let focusedRole {
                 Color.black
                     .ignoresSafeArea()
                     .opacity(0.5)
                     .overlay {
                         VStack {
-                            Color(focusedCard)
-                                .aspectRatio(1 / 1.4, contentMode: .fit)
-                                .clipShape(RoundedRectangle(cornerRadius: 10))
-                                .matchedGeometryEffect(id: focusedCard, in: viewSpace)
+                            Image(uiImage: focusedRole.cardImage)
+                                .resizable()
+                                .scaledToFit()
+                                .matchedGeometryEffect(id: focusedRole.id, in: viewSpace)
                                 .transition(.scale(scale: 1.0))
                                 .dragRotation3D()
                         }
@@ -75,7 +75,7 @@ struct EditRolesView: View {
                     }
                     .onTapGesture {
                         withAnimation(Self.cardAnimation) {
-                            self.focusedCard = .none
+                            self.focusedRole = .none
                         }
                     }
             }
@@ -89,28 +89,29 @@ extension EditRolesView {
         blendDuration: 2
     )
     
-    private func makeTeamSection(_ title: String, roles: Array<UIColor>.SubSequence) -> some View {
+    private func makeTeamSection(_ title: String, roles: [MockRole]) -> some View {
         AvalonSection(title) {
             makeGrid {
-                ForEach(roles, id: \.self) { color in
-                    Color(color)
-                        .aspectRatio(contentMode: .fill)
+                ForEach(roles) { role in
+                    Image(uiImage: role.iconImage)
+                        .resizable()
+                        .scaledToFit()
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                 }
             }
             
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack {
-                    ForEach(roles, id: \.self) { color in
-                        Color(color)
-                            .aspectRatio(1 / 1.4, contentMode: .fill)
-                            .clipShape(RoundedRectangle(cornerRadius: 10))
-                            .frame(maxWidth: .infinity)
-                            .matchedGeometryEffect(id: color, in: viewSpace)
+                    ForEach(roles) { role in
+                        Image(uiImage: role.cardImage)
+                            .resizable()
+                            .scaledToFit()
+                            .matchedGeometryEffect(id: role.id, in: viewSpace)
+                            .opacity(focusedRole?.id == role.id ? 0 : 1)
                             .transition(.scale(scale: 1.0))
                             .onLongPressGesture {
                                 withAnimation(Self.cardAnimation) {
-                                    focusedCard = color
+                                    focusedRole = role
                                 }
                             }
                     }
