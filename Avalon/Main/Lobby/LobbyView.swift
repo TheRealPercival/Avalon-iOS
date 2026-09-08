@@ -72,11 +72,25 @@ extension LobbyView {
     private var rolesSection: some View {
         AvalonSection("Roles") {
             makeGrid {
-                ForEach(LobbyViewModel.mockRoles) { role in
-                    Image(uiImage: role.iconImage)
-                        .resizable()
-                        .scaledToFit()
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                Group {
+                    ForEach(viewModel.selectedRoles) { role in
+                        Image(uiImage: role.iconImage)
+                            .resizable()
+                            .scaledToFit()
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                    }
+                    
+                    let range = 0..<(10 - viewModel.selectedRoles.count)
+                    ForEach(range, id: \.self) { _ in
+                        RoundedRectangle(cornerRadius: 10)
+                            .stroke(style: .init(lineWidth: 2, dash: [6,6]))
+                            .aspectRatio(contentMode: .fit)
+                            .overlay {
+                                Image(systemName: "plus")
+                                    .font(.livvic)
+                            }
+                            .foregroundStyle(.subtleText)
+                    }
                 }
             }
         }
@@ -84,7 +98,10 @@ extension LobbyView {
             viewModel.isEditRolesOpen = true
         }
         .sheet(isPresented: $viewModel.isEditRolesOpen) {
-            EditRolesView()
+            EditRolesView(
+                selectedGoodRoles: $viewModel.selectedGoodRoles,
+                selectedEvilRoles: $viewModel.selectedEvilRoles
+            )
         }
     }
     

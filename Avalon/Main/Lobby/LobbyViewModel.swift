@@ -13,6 +13,11 @@ class LobbyViewModel {
     var selectedPreset: String
     
     var isEditRolesOpen: Bool = false
+    var selectedGoodRoles: [MockRole] = []
+    var selectedEvilRoles: [MockRole] = []
+    var selectedRoles: [MockRole] {
+        selectedGoodRoles + selectedEvilRoles
+    }
     
     var isTrapperEnabled: Bool = false
     var isLadyEnabled: Bool = false

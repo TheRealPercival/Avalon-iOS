@@ -15,10 +15,15 @@ struct EditRolesView: View {
     @ScaledMetric private var minCellWidth = 50
     @ScaledMetric private var maxCellWidth = 80
     
+    @Binding var selectedGoodRoles: [MockRole]
+    @Binding var selectedEvilRoles: [MockRole]
+    
     @State private var selectedAssassin: String
     @State private var focusedRole: MockRole?
     
-    init() {
+    init(selectedGoodRoles: Binding<[MockRole]>, selectedEvilRoles: Binding<[MockRole]>) {
+        self._selectedGoodRoles = selectedGoodRoles
+        self._selectedEvilRoles = selectedEvilRoles
         selectedAssassin = LobbyViewModel.mockAssassinRoles.first ?? "Morgana"
     }
     
@@ -28,9 +33,19 @@ struct EditRolesView: View {
                 Text("Edit Roles")
                     .font(.livvic(size: .subheading))
                 
-                makeTeamSection("Good Team", roles: LobbyViewModel.mockGoodRoles)
+                makeTeamSection(
+                    "Good Team",
+                    max: 6,
+                    selectedRoles: $selectedGoodRoles,
+                    allRoles: LobbyViewModel.mockGoodRoles
+                )
                 
-                makeTeamSection("Evil Team", roles: LobbyViewModel.mockEvilRoles)
+                makeTeamSection(
+                    "Evil Team",
+                    max: 4,
+                    selectedRoles: $selectedEvilRoles,
+                    allRoles: LobbyViewModel.mockEvilRoles
+                )
                 
                 AvalonSection("Assassin") {
                     AvalonMenu(
@@ -89,29 +104,67 @@ extension EditRolesView {
         blendDuration: 2
     )
     
-    private func makeTeamSection(_ title: String, roles: [MockRole]) -> some View {
+    private func makeTeamSection(
+        _ title: String,
+        max: Int,
+        selectedRoles: Binding<[MockRole]>,
+        allRoles: [MockRole]
+    ) -> some View {
         AvalonSection(title) {
             makeGrid {
-                ForEach(roles) { role in
-                    Image(uiImage: role.iconImage)
-                        .resizable()
-                        .scaledToFit()
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                Group {
+                    let roles = Array(selectedRoles.wrappedValue.enumerated())
+                    
+                    ForEach(roles, id: \.element.id) { offset, role in
+                        Image(uiImage: role.iconImage)
+                            .resizable()
+                            .scaledToFit()
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                    }
+                    
+                    let missingCount = max - selectedRoles.wrappedValue.count
+                    let range: Range<Int> = 0..<missingCount
+                    
+                    ForEach(range.reversed(), id: \.self) { index in
+                        RoundedRectangle(cornerRadius: 10)
+                            .stroke(style: .init(lineWidth: 2, dash: [6,6]))
+                            .aspectRatio(contentMode: .fit)
+                            .overlay {
+                                Image(systemName: "plus")
+                                    .font(.livvic)
+                            }
+                            .foregroundStyle(.subtleText)
+                    }
                 }
             }
             
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack {
-                    ForEach(roles) { role in
+                    ForEach(allRoles) { role in
+                        let isSelected = selectedRoles.contains { $0.id == role.id }
+                        let opacity = focusedRole?.id == role.id ? 0 : isSelected ? 0.4 : 1
+                        
                         Image(uiImage: role.cardImage)
                             .resizable()
                             .scaledToFit()
                             .matchedGeometryEffect(id: role.id, in: viewSpace)
-                            .opacity(focusedRole?.id == role.id ? 0 : 1)
+                            .opacity(opacity)
                             .transition(.scale(scale: 1.0))
                             .onLongPressGesture {
                                 withAnimation(Self.cardAnimation) {
                                     focusedRole = role
+                                }
+                            }
+                            .onTapGesture {
+                                withAnimation {
+                                    if isSelected {
+                                        selectedRoles.wrappedValue.removeAll { $0.id == role.id }
+                                    } else {
+                                        let newSet = selectedRoles.wrappedValue + [role]
+                                        selectedRoles.wrappedValue = allRoles.filter { allRole in
+                                            newSet.contains { $0.id == allRole.id }
+                                        }
+                                    }
                                 }
                             }
                     }
@@ -135,5 +188,11 @@ extension EditRolesView {
 }
 
 #Preview {
-    EditRolesView()
+    @Previewable @State var selectedGoodRoles: [MockRole] = .init()
+    @Previewable @State var selectedEvilRoles: [MockRole] = .init()
+    
+    EditRolesView(
+        selectedGoodRoles: $selectedGoodRoles,
+        selectedEvilRoles: $selectedEvilRoles
+    )
 }
