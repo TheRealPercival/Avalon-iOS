@@ -99,7 +99,7 @@ extension LobbyViewModel {
     ]
 }
 
-struct MockRole: Identifiable {
+struct MockRole: Identifiable, Equatable {
     var id: String { name }
     
     let name: String

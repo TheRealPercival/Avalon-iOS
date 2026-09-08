@@ -190,7 +190,7 @@ extension LobbyView {
             rule.wrappedValue.toggle()
         } label: {
             Color(rule.wrappedValue ? .blue1 : .subtleText)
-                .animation(.none)
+                .inanimate()
                 .aspectRatio(contentMode: .fill)
                 .clipShape(RoundedRectangle(cornerRadius: 10))
                 .overlay(content: icon)

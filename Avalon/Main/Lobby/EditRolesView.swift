@@ -18,12 +18,17 @@ struct EditRolesView: View {
     @Binding var selectedGoodRoles: [MockRole]
     @Binding var selectedEvilRoles: [MockRole]
     
+    @State var draftGoodRoles: [MockRole]
+    @State var draftEvilRoles: [MockRole]
+    
     @State private var selectedAssassin: String
     @State private var focusedRole: MockRole?
     
     init(selectedGoodRoles: Binding<[MockRole]>, selectedEvilRoles: Binding<[MockRole]>) {
         self._selectedGoodRoles = selectedGoodRoles
         self._selectedEvilRoles = selectedEvilRoles
+        self.draftGoodRoles = selectedGoodRoles.wrappedValue
+        self.draftEvilRoles = selectedEvilRoles.wrappedValue
         selectedAssassin = LobbyViewModel.mockAssassinRoles.first ?? "Morgana"
     }
     
@@ -36,14 +41,14 @@ struct EditRolesView: View {
                 makeTeamSection(
                     "Good Team",
                     max: 6,
-                    selectedRoles: $selectedGoodRoles,
+                    selectedRoles: $draftGoodRoles,
                     allRoles: LobbyViewModel.mockGoodRoles
                 )
                 
                 makeTeamSection(
                     "Evil Team",
                     max: 4,
-                    selectedRoles: $selectedEvilRoles,
+                    selectedRoles: $draftEvilRoles,
                     allRoles: LobbyViewModel.mockEvilRoles
                 )
                 
@@ -62,11 +67,18 @@ struct EditRolesView: View {
         }
         .scrollBounceBehavior(.basedOnSize)
         .safeAreaInset(edge: .bottom) {
-            AvalonButton("Save") {
-                // Save role choices
-                dismiss()
+            Group {
+                if hasUnsavedChanges {
+                    AvalonButton("Save") {
+                        // Save role choices
+                        selectedGoodRoles = draftGoodRoles
+                        selectedEvilRoles = draftEvilRoles
+                        dismiss()
+                    }
+                    .padding(.horizontal, 16)
+                }
             }
-            .padding(.horizontal, 16)
+            .inanimate()
         }
         .background {
             Color.fullBackground
@@ -174,6 +186,10 @@ extension EditRolesView {
             }
             .padding(.horizontal, -16)
         }
+    }
+    
+    private var hasUnsavedChanges: Bool {
+        !(selectedGoodRoles == draftGoodRoles && selectedEvilRoles == draftEvilRoles)
     }
     
     private func makeGrid(with content: () -> some View) -> some View {
