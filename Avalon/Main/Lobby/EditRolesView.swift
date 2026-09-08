@@ -15,21 +15,28 @@ struct EditRolesView: View {
     @ScaledMetric private var minCellWidth = 50
     @ScaledMetric private var maxCellWidth = 80
     
-    @Binding var selectedGoodRoles: [MockRole]
-    @Binding var selectedEvilRoles: [MockRole]
+    @Binding private var selectedGoodRoles: [MockRole]
+    @Binding private var selectedEvilRoles: [MockRole]
+    @Binding private var selectedAssassin: MockRole?
     
-    @State var draftGoodRoles: [MockRole]
-    @State var draftEvilRoles: [MockRole]
+    @State private var draftGoodRoles: [MockRole]
+    @State private var draftEvilRoles: [MockRole]
+    @State private var draftAssassin: MockRole?
     
-    @State private var selectedAssassin: String
     @State private var focusedRole: MockRole?
     
-    init(selectedGoodRoles: Binding<[MockRole]>, selectedEvilRoles: Binding<[MockRole]>) {
+    init(
+        selectedGoodRoles: Binding<[MockRole]>,
+        selectedEvilRoles: Binding<[MockRole]>,
+        selectedAssassin: Binding<MockRole?>
+    ) {
         self._selectedGoodRoles = selectedGoodRoles
         self._selectedEvilRoles = selectedEvilRoles
-        self.draftGoodRoles = selectedGoodRoles.wrappedValue
-        self.draftEvilRoles = selectedEvilRoles.wrappedValue
-        selectedAssassin = LobbyViewModel.mockAssassinRoles.first ?? "Morgana"
+        self._selectedAssassin = selectedAssassin
+        
+        self._draftGoodRoles = State(initialValue: selectedGoodRoles.wrappedValue)
+        self._draftEvilRoles = State(initialValue: selectedEvilRoles.wrappedValue)
+        self._draftAssassin = State(initialValue: selectedAssassin.wrappedValue)
     }
     
     var body: some View {
@@ -54,10 +61,16 @@ struct EditRolesView: View {
                 
                 AvalonSection("Assassin") {
                     AvalonMenu(
-                        selection: $selectedAssassin,
-                        options: LobbyViewModel.mockAssassinRoles,
-                        label: { $0 }
+                        selection: $draftAssassin,
+                        options: [.none] + draftEvilRoles,
+                        label: { $0?.name ?? "None" }
                     )
+                }
+                .onChange(of: draftEvilRoles) {
+                    let isContained = draftEvilRoles.contains { $0 == draftAssassin }
+                    guard !isContained else { return }
+                    
+                    draftAssassin = .none
                 }
                 
                 Spacer()
@@ -73,6 +86,7 @@ struct EditRolesView: View {
                         // Save role choices
                         selectedGoodRoles = draftGoodRoles
                         selectedEvilRoles = draftEvilRoles
+                        selectedAssassin = draftAssassin
                         dismiss()
                     }
                     .padding(.horizontal, 16)
@@ -125,13 +139,21 @@ extension EditRolesView {
         AvalonSection(title) {
             makeGrid {
                 Group {
-                    let roles = Array(selectedRoles.wrappedValue.enumerated())
-                    
-                    ForEach(roles, id: \.element.id) { offset, role in
+                    ForEach(selectedRoles.wrappedValue) { role in
                         Image(uiImage: role.iconImage)
                             .resizable()
                             .scaledToFit()
                             .clipShape(RoundedRectangle(cornerRadius: 10))
+                            .overlay {
+                                if role == draftAssassin {
+                                    VStack(alignment: .leading) {
+                                        Text("🗡️")
+                                            .offset(x: -6, y: -6)
+                                            .shadow(radius: 5)
+                                    }
+                                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                                }
+                            }
                     }
                     
                     let missingCount = max - selectedRoles.wrappedValue.count
@@ -189,7 +211,9 @@ extension EditRolesView {
     }
     
     private var hasUnsavedChanges: Bool {
-        !(selectedGoodRoles == draftGoodRoles && selectedEvilRoles == draftEvilRoles)
+        selectedGoodRoles != draftGoodRoles ||
+        selectedEvilRoles != draftEvilRoles ||
+        selectedAssassin != draftAssassin
     }
     
     private func makeGrid(with content: () -> some View) -> some View {
@@ -204,11 +228,9 @@ extension EditRolesView {
 }
 
 #Preview {
-    @Previewable @State var selectedGoodRoles: [MockRole] = .init()
-    @Previewable @State var selectedEvilRoles: [MockRole] = .init()
-    
     EditRolesView(
-        selectedGoodRoles: $selectedGoodRoles,
-        selectedEvilRoles: $selectedEvilRoles
+        selectedGoodRoles: .constant(.init()),
+        selectedEvilRoles: .constant(.init()),
+        selectedAssassin: .constant(.none)
     )
 }

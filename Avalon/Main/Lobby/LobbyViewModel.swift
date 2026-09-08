@@ -18,6 +18,7 @@ class LobbyViewModel {
     var selectedRoles: [MockRole] {
         selectedGoodRoles + selectedEvilRoles
     }
+    var selectedAssassin: MockRole?
     
     var isTrapperEnabled: Bool = false
     var isLadyEnabled: Bool = false
@@ -65,18 +66,18 @@ extension LobbyViewModel {
     
     static let mockGoodRoles: [MockRole] = [
         .init(name: "Merlin", cardImage: .merlinCard, iconImage: .merlinIcon),
-        .init(name: "Good 1", cardImage: .goodGuyCard, iconImage: .goodGuyIcon),
-        .init(name: "Good 2", cardImage: .goodGuyCard, iconImage: .goodGuyIcon),
-        .init(name: "Good 3", cardImage: .goodGuyCard, iconImage: .goodGuyIcon),
-        .init(name: "Good 4", cardImage: .goodGuyCard, iconImage: .goodGuyIcon),
-        .init(name: "Good 5", cardImage: .goodGuyCard, iconImage: .goodGuyIcon)
+        .init(name: "Good Guy 1", cardImage: .goodGuyCard, iconImage: .goodGuyIcon),
+        .init(name: "Good Guy 2", cardImage: .goodGuyCard, iconImage: .goodGuyIcon),
+        .init(name: "Good Guy 3", cardImage: .goodGuyCard, iconImage: .goodGuyIcon),
+        .init(name: "Good Guy 4", cardImage: .goodGuyCard, iconImage: .goodGuyIcon),
+        .init(name: "Good Guy 5", cardImage: .goodGuyCard, iconImage: .goodGuyIcon)
     ]
     
     static let mockEvilRoles: [MockRole] = [
         .init(name: "Morgana", cardImage: .morganaCard, iconImage: .morganaIcon),
-        .init(name: "Evil 1", cardImage: .evilGuyCard, iconImage: .evilGuyIcon),
-        .init(name: "Evil 2", cardImage: .evilGuyCard, iconImage: .evilGuyIcon),
-        .init(name: "Evil 3", cardImage: .evilGuyCard, iconImage: .evilGuyIcon)
+        .init(name: "Evil Guy 1", cardImage: .evilGuyCard, iconImage: .evilGuyIcon),
+        .init(name: "Evil Guy 2", cardImage: .evilGuyCard, iconImage: .evilGuyIcon),
+        .init(name: "Evil Guy 3", cardImage: .evilGuyCard, iconImage: .evilGuyIcon)
     ]
     
     static let mockGridColors: [UIColor] = [
@@ -91,15 +92,9 @@ extension LobbyViewModel {
         .black,
         .white
     ]
-    
-    static let mockAssassinRoles: [String] = [
-        "Morgana",
-        "Mordred",
-        "Assassin"
-    ]
 }
 
-struct MockRole: Identifiable, Equatable {
+struct MockRole: Identifiable, Equatable, Hashable {
     var id: String { name }
     
     let name: String

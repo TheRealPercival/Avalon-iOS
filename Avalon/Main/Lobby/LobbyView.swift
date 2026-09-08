@@ -78,6 +78,16 @@ extension LobbyView {
                             .resizable()
                             .scaledToFit()
                             .clipShape(RoundedRectangle(cornerRadius: 10))
+                            .overlay {
+                                if role == viewModel.selectedAssassin {
+                                    VStack(alignment: .leading) {
+                                        Text("🗡️")
+                                            .offset(x: -6, y: -6)
+                                            .shadow(radius: 5)
+                                    }
+                                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                                }
+                            }
                     }
                     
                     let range = 0..<(10 - viewModel.selectedRoles.count)
@@ -100,7 +110,8 @@ extension LobbyView {
         .sheet(isPresented: $viewModel.isEditRolesOpen) {
             EditRolesView(
                 selectedGoodRoles: $viewModel.selectedGoodRoles,
-                selectedEvilRoles: $viewModel.selectedEvilRoles
+                selectedEvilRoles: $viewModel.selectedEvilRoles,
+                selectedAssassin: $viewModel.selectedAssassin
             )
         }
     }
